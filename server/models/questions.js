@@ -9,9 +9,10 @@ var questionSchema = new Schema({ // create collection
     text: {type:String, required: true},
     tags: [{type: Schema.Types.ObjectId, ref: 'Tag', require:true}],
     answers: [{type: Schema.Types.ObjectId, ref: 'Answer'}],
-    asked_by : {type:String, default: 'Anonymous'},
+    asked_by : {type: Schema.Types.ObjectId, ref: 'User'},
     ask_date_time: {type:Date, default: Date.now},
-    views: {type: Number, default: 0}
+    views: {type: Number, default: 0},
+    votes: {type: Number, default: 0}
 }, {
     virtuals:{
         url:{
