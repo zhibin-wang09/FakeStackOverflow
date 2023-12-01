@@ -9,7 +9,8 @@ var userSchema = new Schema({
     username: {type: String},
     password: {type: String},
     email: {type: String},
-    reputation: {type: Number},
+    reputation: {type: Number, default: 0},
+    role: {type: String, default: 'normal'}
 });
 
 module.exports = mongoose.model('User',userSchema);

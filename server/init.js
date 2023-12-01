@@ -3,18 +3,18 @@
 // Script should take admin credentials as arguments as described in the requirements doc.
 let userArgs = process.argv.slice(2);
 
-if (!userArgs[0].startsWith('mongodb')) {
-    console.log('ERROR: You need to specify a valid mongodb URL as the first argument');
-    return
-}
+// if (!userArgs[0].startsWith('mongodb')) {
+//     console.log('ERROR: You need to specify a valid mongodb URL as the first argument');
+//     return
+// }
 
 let Tag = require('./models/tags')
 let Answer = require('./models/answers')
 let Question = require('./models/questions')
-
+let User = require('./modes/account')
 
 let mongoose = require('mongoose');
-let mongoDB = userArgs[0];
+let mongoDB = 'mongodb://127.0.0.1:27017/fake_so'; // pre-determine 
 mongoose.connect(mongoDB, {useNewUrlParser: true, useUnifiedTopology: true});
 // mongoose.Promise = global.Promise;
 let db = mongoose.connection;
@@ -51,7 +51,33 @@ function questionCreate(title, text, tags, answers, asked_by, ask_date_time, vie
   return qstn.save();
 }
 
+function adminCreate(username, password, email){
+    // assuming this is going to be an admin user
+    userdetail = {
+        username: username,
+        password: password,
+        email: email,
+        role: 'admin'
+    }
+    let user = new User(userdetail)
+    return user.save()
+}
+
+function userCreate(username, password,email){
+  userdetail = {
+        username: username,
+        password: password,
+        email: email,
+        role: 'user'
+    }
+    let user = new User(userdetail)
+    return user.save()
+}
+
 const populate = async () => {
+  await adminCreate(userArgs[1], userArgs2[2]);
+  let u1 = await userCreate("Joe", "123455", "joe@gmail.com");
+  let u2 = await userCreate("John", "abcdefg", "john@gmail.com");
   let t1 = await tagCreate('react');
   let t2 = await tagCreate('javascript');
   let t3 = await tagCreate('android-studio');
