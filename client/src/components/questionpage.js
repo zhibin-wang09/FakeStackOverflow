@@ -9,14 +9,6 @@ export default function QuestionPage({handlePageChange, currQuestionId}) {
   const [question, setQuestion] = useState([]);
 
   useEffect(() => {
-    // axios.get(`http://localhost:8000/get/answers/${currQuestionId}`) // adjust the endpoint if needed
-    // .then(response => {
-    //   setAnswers(response.data);
-    // })
-    // .catch(error => {
-    //   console.error('Error fetching answer details:', error);
-    // });
-
     axios.get(`http://localhost:8000/get/questions/${currQuestionId}`)
     .then(response => {
       setQuestion(response.data);
