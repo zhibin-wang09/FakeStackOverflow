@@ -1,7 +1,8 @@
 // this file takes care of requests related to questions
 const question = require('../models/questions') // obtain the question collection
-const tag = require('../models/tags')
+const tag = require('../models/tags');
 const answer = require('../models/answers');
+require('../models/account');
 
 
 const postQuestion = async (req, res) => { // a post method to handle new questions added to the database
@@ -77,33 +78,19 @@ const getQuestionByKeyword = async (req,res) => { // a get method to retrieve re
 }
 
 const getQuestion = async (req,res) => {
-    const questions = await question.find({}).orFail(new Error("No document found!")); // get all questions
-    const formattedQuestions = [];
-    for(const i in questions){
-        formattedQuestions[i] = {
-            _id : questions[i]._id,
-            title: questions[i].title,
-            text: questions[i].text,
-            asked_by:  questions[i].asked_by,
-            views: questions[i].views,
-            ask_date_time: questions[i].ask_date_time,
-            "tags": {},
-            "answers" : {},
-        };
-        for(const j in questions[i]["tags"]){
-            const t = await tag.findById(questions[i]["tags"][j]).orFail(new Error("No document found!"));
-            formattedQuestions[i]["tags"][j] = t;
-        }
-        for(const j in questions[i]["answers"]){
-            const a = await answer.findById(questions[i]["answers"][j]).orFail(new Error("No document found!"));
-            formattedQuestions[i]["answers"][j] = a;
-        }
-    }
-    res.status(200).send(formattedQuestions);
+    const questions = await question.find({}).populate('tags').populate('asked_by').populate('answers').orFail(new Error("No document found!")).exec(); // get all questions
+    res.status(200).send(questions);
 }
 
 const getQuestionById = async (req,res) => {
-    const q = await question.findOne({_id : req.params.id}).orFail(new Error("No document found!"));
+    const q = await question.findOne({_id : req.params.id}).populate('asked_by').populate({
+        path: 'answers',
+        populate: {
+            path: 'ans_by',
+            model: 'User'
+        }
+    }).populate('tags').orFail(new Error("No document found!")).exec();
+    console.log(q);
     res.status(200).send(q);
 }
 
