@@ -5,20 +5,23 @@ import formatTimeSince from "../formattime";
 import extractLinks from "../processInput.js";
 export default function QuestionPage({handlePageChange, currQuestionId}) {
   const [answers, setAnswers] = useState([]);
+  const [asked_by, setAsked_by] = useState("");
   const [question, setQuestion] = useState([]);
 
   useEffect(() => {
-    axios.get(`http://localhost:8000/get/answers/${currQuestionId}`) // adjust the endpoint if needed
-    .then(response => {
-      setAnswers(response.data);
-    })
-    .catch(error => {
-      console.error('Error fetching answer details:', error);
-    });
+    // axios.get(`http://localhost:8000/get/answers/${currQuestionId}`) // adjust the endpoint if needed
+    // .then(response => {
+    //   setAnswers(response.data);
+    // })
+    // .catch(error => {
+    //   console.error('Error fetching answer details:', error);
+    // });
 
     axios.get(`http://localhost:8000/get/questions/${currQuestionId}`)
     .then(response => {
       setQuestion(response.data);
+      setAnswers(response.data.answers)
+      setAsked_by(response.data.asked_by.username);
     }).catch(error => {
       console.error('Error fetching question details:', error);
     });
@@ -31,7 +34,7 @@ export default function QuestionPage({handlePageChange, currQuestionId}) {
         <div className="flex justify-between items-center">
           <div className="flex items-center space-x-2">
             <div className="text-gray-600">Views: {question.views}</div>
-            <div className="text-gray-600">Posted by: {question.asked_by}</div>
+            <div className="text-gray-600">Posted by: {asked_by}</div>
           </div>
         </div>
         <div className="mt-2">{question.text === undefined ? '' : extractLinks(question.text)}</div>
@@ -41,7 +44,7 @@ export default function QuestionPage({handlePageChange, currQuestionId}) {
         <div key={answer._id} className="bg-gray-100 rounded-lg p-4 shadow-md mb-4 mx-8">
           <div className="flex justify-between items-center">
             <div className="flex items-center space-x-2">
-              <div className="text-gray-600">Posted by: {answer.ans_by}</div>
+              <div className="text-gray-600">Posted by: {answer.ans_by.username}</div>
               <div className="text-gray-600">Answered on: {formatTimeSince(answer.ans_date_time)}</div>
             </div>
           </div>
