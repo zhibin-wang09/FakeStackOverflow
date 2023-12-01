@@ -9,14 +9,18 @@ export default function QuestionPage({handlePageChange, currQuestionId}) {
   const [question, setQuestion] = useState([]);
 
   useEffect(() => {
-    axios.get(`http://localhost:8000/get/questions/${currQuestionId}`)
-    .then(response => {
-      setQuestion(response.data);
-      setAnswers(response.data.answers)
-      setAsked_by(response.data.asked_by.username);
-    }).catch(error => {
-      console.error('Error fetching question details:', error);
-    });
+    const get = async()=>{
+      try{
+        const res = await axios.get(`http://localhost:8000/get/questions/${currQuestionId}`);
+        setQuestion(res.data);
+        setAnswers(res.data.answers);
+        setAsked_by(res.data.asked_by.username);
+        return res.data
+      }catch(e){
+        console.error('Error fetching question details:', e);
+      }
+    }
+    get();
   },[currQuestionId]);
 
 
