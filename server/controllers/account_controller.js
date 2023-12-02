@@ -48,6 +48,9 @@ const login = async (req, res) => {
 }
 
 const logout = async (req, res) => {
+    if(res.cookie.token === null){ // the user must be signed in to sign out
+        res.status(400).send("You are not signed in yet");
+    }
     await cookiestore.delete(req.email); // destroy the cookie in our storage
     res.clearCookie('token').status(200).send("Logout successfully"); // clear the cookie on the client side
 }
