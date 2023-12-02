@@ -56,8 +56,9 @@ const logout = async (req, res) => {
 }
 
 const verify = async (req,res,next) => {
-    const verdict = jwt.verify(req.cookie.token,secret,{algorithms: ['RS256']}); // verify the jwt token
-    if(verdict){ // if this is valid we move on to the next operation
+    const user = jwt.verify(req.cookie.token,secret,{algorithms: ['RS256']}); // verify the jwt token
+    if(user){ // if this is valid we move on to the next operation
+        req.user = user; // we will decode the cookie and obtain the email of the user and use it later
         next();
     }else{ // if this is not valid we stop here and return error
         res.status(401).send("You are not authorized to continue access the resource");
