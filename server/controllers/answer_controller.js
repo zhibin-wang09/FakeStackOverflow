@@ -19,4 +19,20 @@ const postAnswers = async (req, res) => { // a post method that handles new answ
     res.status(200).send(ans);
 }
 
-module.exports = {getAnswers, postAnswers};
+// require the request to have a parameter of the id of the data in the database. Client side should have this id that was initially sent when fetching answers
+const increaseVote = async (req,res) => {
+    const id = req.params.id; // use the id to identify the question
+    const a = await answer.findOne({_id: id}); // find the answer and its associated information
+    await answer.updateOne({_id: id}, {votes : a.votes + 1}); // increase the reputation by 1
+    res.status(200).send()
+}
+
+// require the request to have a parameter of the id of the data in the database. Client side should have this id that was initially sent when fetching answers
+const decreaseVote = async (req,res) => {
+    const id = req.params.id;
+    const a = await answer.findOne({_id: id});
+    await answer.updateOne({_id: id}, {votes: a.votes - 1});
+    res.status(200).send()
+}
+
+module.exports = {getAnswers, postAnswers, increaseVote, decreaseVote};
