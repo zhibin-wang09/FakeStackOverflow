@@ -70,16 +70,16 @@ const verify = async (req,res,next) => {
 }
 
 const increaseReputation = async (req,res) => {
-    const id = req.params.id; // use the id to identify the question
-    const q = await user.findOne({_id: id}); // find the question and its associated information
-    await user.updateOne({_id: id}, {reputation : q.reputation + 5}); // increase the reputation by 1
+    const email = req.body.email; // use the email to identify the question
+    const q = await user.findOne({email: email}); // find the question and its associated information
+    await user.updateOne({email: email}, {reputation : q.reputation + 5}); // increase the reputation by 1
     res.status(200).send()
 }
 
 const decreaseReputation = async (req,res) => {
-    const id = req.params.id; // use the id to identify the question
-    const q = await user.findOne({_id: id}); // find the question and its associated information
-    await user.updateOne({_id: id}, {reputation : q.reputation - 10}); // increase the reputation by 1
+    const email = req.body.email; // use the id to identify the question
+    const q = await user.findOne({email: email}); // find the question and its associated information
+    await user.updateOne({email: email}, {reputation : q.reputation - 10}); // increase the reputation by 1
     res.status(200).send()
 }
 
