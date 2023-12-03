@@ -69,4 +69,18 @@ const verify = async (req,res,next) => {
     }
 }
 
-module.exports = {signup, login, logout, verify}
+const increaseReputation = async (req,res) => {
+    const id = req.params.id; // use the id to identify the question
+    const q = await user.findOne({_id: id}); // find the question and its associated information
+    await user.updateOne({_id: id}, {reputation : q.reputation + 5}); // increase the reputation by 1
+    res.status(200).send()
+}
+
+const decreaseReputation = async (req,res) => {
+    const id = req.params.id; // use the id to identify the question
+    const q = await user.findOne({_id: id}); // find the question and its associated information
+    await user.updateOne({_id: id}, {reputation : q.reputation - 10}); // increase the reputation by 1
+    res.status(200).send()
+}
+
+module.exports = {signup, login, logout, verify, increaseReputation, decreaseReputation}

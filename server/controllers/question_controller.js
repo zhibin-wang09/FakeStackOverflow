@@ -94,6 +94,22 @@ const getQuestionById = async (req,res) => {
     res.status(200).send(q);
 }
 
+// require the request to have a parameter of the id of the data in the database. Client side should have this id that was initially sent when fetching questions
+const increaseVote = async (req,res) => {
+    const id = req.params.id; // use the id to identify the question
+    const q = await question.findOne({_id: id}); // find the question and its associated information
+    await question.updateOne({_id: id}, {votes : q.votes + 1}); // increase the reputation by 1
+    res.status(200).send()
+}
+
+// require the request to have a parameter of the id of the data in the database. Client side should have this id that was initially sent when fetching questions
+const decreaseVote = async (req,res) => {
+    const id = req.params.id;
+    const q = await question.findOne({_id: id});
+    await question.updateOne({_id: id}, {votes: q.votes -1});
+    res.status(200).send()
+}
+
 /**
  * This function will read through a string and process the strings into separate keywords
  * marking the tag keywords vs the text keywords.
@@ -132,4 +148,4 @@ function scanKeyWords(input){
     return listOfKeywords;
 }
 
-module.exports = {postQuestion, getQuestionByKeyword ,getQuestion, updateView, getQuestionById}
+module.exports = {postQuestion, getQuestionByKeyword ,getQuestion, updateView, getQuestionById, increaseVote, decreaseVote}
