@@ -14,7 +14,7 @@
     "mongoose": "*",
     "mysql": "*",
     "cors": "*",
-    "cookie-store": "*",
+    "connect-mongodb-session": "*",
     "jsonwebtoken" : "*",
     "express-session" : "*"
   },
