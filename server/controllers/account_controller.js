@@ -1,7 +1,6 @@
 const user = require('../models/account')
 const bcrypt = require('bcrypt')
 const jwt = require('jsonwebtoken')
-const cookiestore = require('cookie-store')
 const saltRound = 10;
 const secret = process.argv[4]; // the fourth argument i.e. the secret
 
@@ -42,7 +41,7 @@ const login = async (req, res) => {
         res.status(401).send("Wrong password!");
     }
     const token = jwt.sign({email: email}, secret,{ algorithm: 'RS256' }); // make a jwt token
-    await cookiestore.set(email, token); // set the token in our cookie store
+    req.session.token = token;
     res.cookie('token', token, { // send the cookie to the client
         httpOnly: true}).status(200).send("Login successfully");
 }
@@ -51,12 +50,15 @@ const logout = async (req, res) => {
     if(res.cookie.token === null){ // the user must be signed in to sign out
         res.status(400).send("You are not signed in yet");
     }
-    await cookiestore.delete(req.email); // destroy the cookie in our storage
+    req.session.token = null;   
     res.clearCookie('token').status(200).send("Logout successfully"); // clear the cookie on the client side
 }
 
 const verify = async (req,res,next) => {
-    const decoded = jwt.verify(req.cookie.token,secret,{algorithms: ['RS256']}); // verify the jwt token
+    if(req.session.token === null){
+        res.status(400).send("Please login first!");
+    }
+    const decoded = jwt.verify(req.session.token.token,secret,{algorithms: ['RS256']}); // verify the jwt token
     if(decoded.email){ // if this is valid we move on to the next operation
         req.email = decoded.email; // we will decode the cookie and obtain the email of the user and use it later
         next();

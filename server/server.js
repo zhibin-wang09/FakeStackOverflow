@@ -4,14 +4,30 @@
 // This is where you should start writing server-side code for this application.
 const express = require('express');
 const mongoose = require('mongoose');
+const session = require('express-session'); // use this middleware to set up the session store
+const SessionStore = rquire('connect-mongodb-session')(session);
 const cors = require('cors');
 const router = require('./routers/fake_so_router.js');
+var db = 'mongodb://127.0.0.1:27017/fake_so';
+const secret = process.argv[4]; // the fourth argument i.e. the secret
 const app = express();
 app.use(cors()); // allow this app to be accessed by other origins. This allows cors to be used to all routes available on server
 app.use(express.json()); // allow this app to destruct the json received from the request and populate the req.body field in the middleware. Only if Content-type : 'json'
+var store = new SessionStore({
+    uri: db,
+    collection: 'sessions'
+})
+app.use(session({
+    secret: secret,
+    cookie: {
+        httpOnly: true
+    },
+    resave: false,
+    saveUninitialized: true,
+    store: store
+}))
 app.use('/', router);
 const PORT = 8000;
-var db = 'mongodb://127.0.0.1:27017/fake_so';
 // running on apple silicon, make sure you installed mongod using homebrew
 //mongod --config /opt/homebrew/etc/mongod.conf --fork
 const server = app.listen(PORT, () => {
