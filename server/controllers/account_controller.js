@@ -2,16 +2,16 @@ const user = require('../models/account')
 const bcrypt = require('bcrypt')
 const jwt = require('jsonwebtoken')
 const saltRound = 10;
-const secret = process.argv[4]; // the fourth argument i.e. the secret
+const secret = process.argv[2]; // the fourth argument i.e. the secret
 
 const signup = async (req, res) => {
     // extract important fields
-    let username = req.username;
-    let password = req.password;
-    let email = req.email;
+    let username = req.body.username;
+    let password = req.body.password;
+    let email = req.body.email;
     // check if user existed already, two no users can have the same email
     const checkIfExist = await user.findOne({email: email}); 
-    const validEmailFormat = '^[^@]+@[^@]+\.[^@]+$';
+    const validEmailFormat = /^(.+)@(.+)\.(.+)$/;
     if(checkIfExist !== null){ // if existed already then we will not create an account
         res.status(400).send("Account already exist!");
     }else if(!validEmailFormat.test(email)){ // if the email has the wrong format
@@ -21,50 +21,52 @@ const signup = async (req, res) => {
     }
     const salt = await bcrypt.genSalt(saltRound); // generate the hashing key
     const hashpass = await bcrypt.hash(password, salt); // hash the password
-    const user = await user.creatOne({username, hashpass, email}); // store in database
+    await user.create({username: username, password: hashpass, email: email}); // store in database
     res.status(200).send("Account created successfully"); 
 }
 
 const login = async (req, res) => {
     // extract important fields
-    let password = req.password;
-    let email = req.email;
+    let password = req.body.password;
+    let email = req.body.email;
 
     // check if user already exist
     const checkIfExist = await user.findOne({email: email});
     if(checkIfExist === null){ // result in error if account does not exist
-        res.status(401).send("Account does not exist!");
+        return res.status(401).send("Account does not exist!");
     }
-    
+
     const verdict = await bcrypt.compare(password, checkIfExist.password); // compare password hash
-    if(verdict){// if the password is wrong
-        res.status(401).send("Wrong password!");
+    if(!verdict){// if the password is wrong
+        return res.status(401).send("Wrong password!");
     }
-    const token = jwt.sign({email: email}, secret,{ algorithm: 'RS256' }); // make a jwt token
-    req.session.token = token;
+    const token = jwt.sign({email: email}, secret,{ algorithm: 'HS256' }); // make a jwt token
+    req.session.token = token; // store the token in our session storage
     res.cookie('token', token, { // send the cookie to the client
-        httpOnly: true}).status(200).send("Login successfully");
+        httpOnly: true});
+    res.redirect(200,'/get/questions'); // redirec to home page
 }
 
 const logout = async (req, res) => {
     if(res.cookie.token === null){ // the user must be signed in to sign out
-        res.status(400).send("You are not signed in yet");
+        return res.status(400).send("You are not signed in yet");
     }
-    req.session.token = null;   
-    res.clearCookie('token').status(200).send("Logout successfully"); // clear the cookie on the client side
+    req.session.token = null;   // clear the session token
+    res.clearCookie('token') // clear the cookie on the client side
+    res.redirect(200, '') // fill in this for back to the welcome page
 }
 
 const verify = async (req,res,next) => {
     if(req.session.token === null){
-        res.status(400).send("Please login first!");
+        return res.status(400).send("Please login first!");
     }
-    const decoded = jwt.verify(req.session.token.token,secret,{algorithms: ['RS256']}); // verify the jwt token
+    const decoded = jwt.verify(req.session.token.token,secret,{algorithms: ['HS256']}); // verify the jwt token
     if(decoded.email){ // if this is valid we move on to the next operation
-        req.email = decoded.email; // we will decode the cookie and obtain the email of the user and use it later
+        req.body.email = decoded.email; // we will decode the cookie and obtain the email of the user and use it later
         next();
     }else{ // if this is not valid we stop here and return error
         res.status(401).send("You are not authorized to continue access the resource");
     }
 }
 
-modules.exports = {signup, login, logout, verify}
+module.exports = {signup, login, logout, verify}
