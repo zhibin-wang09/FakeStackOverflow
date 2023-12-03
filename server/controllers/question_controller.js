@@ -95,7 +95,7 @@ const getQuestionById = async (req,res) => {
 }
 
 // require the request to have a parameter of the id of the data in the database. Client side should have this id that was initially sent when fetching questions
-const increaseVote = async (req,res) => {
+const increaseQuestionVote = async (req,res) => {
     const id = req.params.id; // use the id to identify the question
     const q = await question.findOne({_id: id}); // find the question and its associated information
     await question.updateOne({_id: id}, {votes : q.votes + 1}); // increase the reputation by 1
@@ -103,7 +103,7 @@ const increaseVote = async (req,res) => {
 }
 
 // require the request to have a parameter of the id of the data in the database. Client side should have this id that was initially sent when fetching questions
-const decreaseVote = async (req,res) => {
+const decreaseQuestionVote = async (req,res) => {
     const id = req.params.id;
     const q = await question.findOne({_id: id});
     await question.updateOne({_id: id}, {votes: q.votes -1});
@@ -148,4 +148,13 @@ function scanKeyWords(input){
     return listOfKeywords;
 }
 
-module.exports = {postQuestion, getQuestionByKeyword ,getQuestion, updateView, getQuestionById, increaseVote, decreaseVote}
+const deleteQuestion = async (req,res) => { // deleting a question will delete all of its associated comment and answers
+
+}
+
+const modifyQuestoin = async (req,res) => { // modifying existing quesition in the databse
+
+}
+
+module.exports = {postQuestion, getQuestionByKeyword ,getQuestion, updateView, getQuestionById, increaseQuestionVote, decreaseQuestionVote,
+deleteQuestion,modifyQuestoin}

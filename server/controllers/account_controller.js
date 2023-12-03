@@ -13,11 +13,11 @@ const signup = async (req, res) => {
     const checkIfExist = await user.findOne({email: email}); 
     const validEmailFormat = /^(.+)@(.+)\.(.+)$/;
     if(checkIfExist !== null){ // if existed already then we will not create an account
-        res.status(400).send("Account already exist!");
+        return res.status(400).send("Account already exist!");
     }else if(!validEmailFormat.test(email)){ // if the email has the wrong format
-        res.status(400).send("Email format is not valid! Please enter the email in such format *@*.* where * means any sequence of characters");
+        return res.status(400).send("Email format is not valid! Please enter the email in such format *@*.* where * means any sequence of characters");
     }else if(password.includes(email) || password.includes(username)){ // if the password contains username or email
-        res.status(400).send("Password should not contain username or email!")
+        return res.status(400).send("Password should not contain username or email!")
     }
     const salt = await bcrypt.genSalt(saltRound); // generate the hashing key
     const hashpass = await bcrypt.hash(password, salt); // hash the password
@@ -41,10 +41,19 @@ const login = async (req, res) => {
         return res.status(401).send("Wrong password!");
     }
     const token = jwt.sign({email: email}, secret,{ algorithm: 'HS256' }); // make a jwt token
-    req.session.token = token; // store the token in our session storage
-    res.cookie('token', token, { // send the cookie to the client
-        httpOnly: true});
-    res.redirect(200,'/get/questions'); // redirec to home page
+    req.session.regenerate(function (err){
+        if(err){
+            return res.status(400).send(err);
+        }
+        req.session.token = token;
+        req.session.save(function(err){
+            if(err) return res.status(400).send(err);
+            req.session.token = token; // store the token in our session storage
+            res.cookie('token', token, { // send the cookie to the client
+                httpOnly: true});
+            res.redirect(200,'/get/questions'); // redirect to home page
+        })
+    })
 }
 
 const logout = async (req, res) => {
@@ -52,15 +61,21 @@ const logout = async (req, res) => {
         return res.status(400).send("You are not signed in yet");
     }
     req.session.token = null;   // clear the session token
-    res.clearCookie('token') // clear the cookie on the client side
-    res.redirect(200, '') // fill in this for back to the welcome page
+    req.session.save(function(err){
+        if(err) return res.status(400).send(err);
+        req.session.regenerate(function(err){
+            if(err) return res.status(400).send(err);
+            res.clearCookie('token') // clear the cookie on the client side
+            res.redirect(200, '') // fill in this for back to the welcome page  
+        })
+    })
 }
 
 const verify = async (req,res,next) => {
     if(req.session.token === null){
         return res.status(400).send("Please login first!");
     }
-    const decoded = jwt.verify(req.session.token.token,secret,{algorithms: ['HS256']}); // verify the jwt token
+    const decoded = jwt.verify(req.session.token,secret,{algorithms: ['HS256']}); // verify the jwt token
     if(decoded.email){ // if this is valid we move on to the next operation
         req.body.email = decoded.email; // we will decode the cookie and obtain the email of the user and use it later
         next();
@@ -83,4 +98,10 @@ const decreaseReputation = async (req,res) => {
     res.status(200).send()
 }
 
-module.exports = {signup, login, logout, verify, increaseReputation, decreaseReputation}
+const getUser = async (req,res) => {
+    const email  = req.body.email;
+    const user = await user.findOne({email:email});
+    res.status(200).send(user);
+}
+
+module.exports = {signup, login, logout, verify, increaseReputation, decreaseReputation,getUser}

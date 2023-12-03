@@ -20,7 +20,8 @@ var store = new SessionStore({
 app.use(session({
     secret: secret,
     cookie: {
-        httpOnly: true
+        httpOnly: true,
+        secure: false
     },
     resave: false,
     saveUninitialized: true,
