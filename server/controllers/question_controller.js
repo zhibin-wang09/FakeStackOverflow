@@ -46,7 +46,7 @@ const getQuestionByKeyword = async (req,res) => { // a get method to retrieve re
             _id : questions[i]._id,
             title: questions[i].title,
             text: questions[i].text,
-            asked_by:  questions[i].asked_by,
+            asked_by:  questions[i].asked_by.username,
             views: questions[i].views,
             ask_date_time: questions[i].ask_date_time,
             "tags": {},
@@ -80,6 +80,10 @@ const getQuestionByKeyword = async (req,res) => { // a get method to retrieve re
 
 const getQuestion = async (req,res) => {
     const questions = await question.find({}).populate('tags').populate('asked_by').populate('answers').orFail(new Error("No document found!")).exec(); // get all questions
+    for(const i in questions){ // fetch username only, does not pass the sensitive information to client
+        questions[i].asked_by.password = null;
+        questions[i].asked_by.email = null;
+    }
     res.status(200).send(questions);
 }
 
@@ -91,7 +95,8 @@ const getQuestionById = async (req,res) => {
             model: 'User'
         }
     }).populate('tags').orFail(new Error("No document found!")).exec();
-    console.log(q);
+    q.asked_by.password = null;
+    q.asked_by.email = null;
     res.status(200).send(q);
 }
 
