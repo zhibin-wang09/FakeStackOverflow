@@ -5,7 +5,7 @@
 const express = require('express');
 const mongoose = require('mongoose');
 const session = require('express-session'); // use this middleware to set up the session store
-const SessionStore = require('connect-mongodb-session')(session);
+const MongoStore = require('connect-mongo');
 const cors = require('cors');
 const cookieParser = require('cookie-parser')
 const router = require('./routers/fake_so_router.js');
@@ -16,10 +16,6 @@ app.use(cors()); // allow this app to be accessed by other origins. This allows 
 app.use(express.json()); // allow this app to destruct the json received from the request and populate the req.body field in the middleware. Only if Content-type : 'json'
 app.use(express.urlencoded({extended:true}))
 app.use(cookieParser())
-var store = new SessionStore({
-    uri: db,
-    collection: 'sessions'
-})
 app.use(session({
     secret: secret,
     cookie: {
@@ -28,7 +24,7 @@ app.use(session({
     },
     resave: false,
     saveUninitialized: true,
-    store: store
+    store: new MongoStore({mongoUrl: db})
 }))
 app.use('/', router);
 const PORT = 8000;

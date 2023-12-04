@@ -14,10 +14,10 @@
     "mongoose": "*",
     "mysql": "*",
     "cors": "*",
-    "connect-mongodb-session": "*",
     "jsonwebtoken" : "*",
     "express-session" : "*",
-    "cookie-parser": "*"
+    "cookie-parser": "*",
+    "connect-mongo": "*"
   },
   "devDependencies": {
     "eslint": "^8.53.0",
