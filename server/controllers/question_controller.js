@@ -4,6 +4,7 @@ const tag = require('../models/tags');
 const answer = require('../models/answers');
 const comment = require('../models/comment');
 const answers = require('../models/answers');
+const user = require('../models/account');
 require('../models/account');
 
 
@@ -17,7 +18,8 @@ const postQuestion = async (req, res) => { // a post method to handle new questi
             tags.push(newTag);
         }
     }
-    const q = await question.create({title : req.body.title, text : req.body.text, tags : tags, asked_by : req.body.asked_by});
+    const user = await user.findOne({email: req.body.email}); 
+    const q = await question.create({title : req.body.title, text : req.body.text, tags : tags, asked_by : user});
     res.status(200).send(q);
 }
 
