@@ -18,8 +18,8 @@ const postQuestion = async (req, res) => { // a post method to handle new questi
             tags.push(newTag);
         }
     }
-    const user = await user.findOne({email: req.body.email}); 
-    const q = await question.create({title : req.body.title, text : req.body.text, tags : tags, asked_by : user});
+    const u = await user.findOne({email: req.body.email}); 
+    const q = await question.create({title : req.body.title, text : req.body.text, tags : tags, asked_by : u});
     res.status(200).send(q);
 }
 
