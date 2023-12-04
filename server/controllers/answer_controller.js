@@ -39,7 +39,7 @@ const decreaseAnswerVote = async (req,res) => {
 const deleteAnswer = async (req,res) => { // deleting an answer will delete all of its associated comment
     const id = req.params.id;
     const a = await answers.findOne({_id: id}).populate("comment");
-    for(const i in a["comment"]){
+    for(const i in a["comment"]){ // go through the comments and delete each one
         await comment.deleteOne({_id : a['comment'][i]._id});
     }
     await answers.deleteOne({_id : id});
