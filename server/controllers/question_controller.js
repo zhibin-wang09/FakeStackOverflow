@@ -3,6 +3,7 @@ const question = require('../models/questions') // obtain the question collectio
 const tag = require('../models/tags');
 const answer = require('../models/answers');
 const comment = require('../models/comment');
+const answers = require('../models/answers');
 require('../models/account');
 
 
@@ -32,7 +33,19 @@ const getQuestionByKeyword = async (req,res) => { // a get method to retrieve re
     const tagsKeyword = keywords.filter(a => a[0] === true).map(a => a[1]); // separate tag keyword into one array and remove the boolean flag(a[0])
     const normalKeyword = keywords.filter(a => a[0] === false).map(a => a[1]); // separate normal keyword into one array and remove the boolean flag(a[0])
 
-    const questions = await question.find({}); // get ready for filtering from all questions
+    const questions = await question.find({}).populate('answers').populate('asked_by').populate({
+        path: 'answers',
+        populate: {
+            path: 'ans_by',
+            model: 'User'
+        }
+    }).populate({
+        path: 'comment',
+        populate: {
+            path: 'posted_by',
+            model: 'User'
+        }
+    }); // get ready for filtering from all questions
     const tags = await tag.find({}); // get the tags to get ready for matching
     const tagIdToName = new Map(); // map of tag id -> tag name
     const matchingQuestions = new Set(); // stores all the matching questions
@@ -49,16 +62,18 @@ const getQuestionByKeyword = async (req,res) => { // a get method to retrieve re
             asked_by:  questions[i].asked_by.username,
             views: questions[i].views,
             ask_date_time: questions[i].ask_date_time,
-            "tags": {},
-            "answers" : {},
+            tags : questions[i].tags,
+            answers: questions[i].answers
         };
-        for(const j in questions[i]["tags"]){
-            const t = await tag.findById(questions[i]["tags"][j]).orFail(new Error("No document found!"));
-            formattedQuestions[i]["tags"][j] = t;
+
+        for(const j in questions[i].comment){
+            questions[i].comment[j].posted_by.password = null; // erase password
+            questions[i].comment[j].posted_by.email = null; // erase the user email
         }
-        for(const j in questions[i]["answers"]){
-            const a = await answer.findById(questions[i]["answers"][j]).orFail(new Error("No document found!"));
-            formattedQuestions[i]["answers"][j] = a;
+    
+        for(const i in q.answers){
+            questions[i].answers[j].ans_by.password = null; // erase password
+            questions[i].answers[j].ans_by.email = null; // erase the user email
         }
 
         for(const j in questions[i]["tags"]){ // go through all the tags that questions[i] associated with
@@ -79,10 +94,31 @@ const getQuestionByKeyword = async (req,res) => { // a get method to retrieve re
 }
 
 const getQuestion = async (req,res) => {
-    const questions = await question.find({}).populate('tags').populate('asked_by').populate('answers').orFail(new Error("No document found!")).exec(); // get all questions
+    const questions = await question.find({}).populate('tags').populate('asked_by').populate({
+        path: 'answers',
+        populate: {
+            path: 'ans_by',
+            model: 'User'
+        }
+    }).populate({
+        path: 'comment',
+        populate: {
+            path: 'posted_by',
+            model: 'User'
+        }
+    }).orFail(new Error("No document found!")).exec(); // get all questions
     for(const i in questions){ // fetch username only, does not pass the sensitive information to client
         questions[i].asked_by.password = null;
         questions[i].asked_by.email = null;
+        for(const j in questions[i].comment){
+            questions[i].comment[j].posted_by.password = null; // erase password
+            questions[i].comment[j].posted_by.email = null; // erase the user email
+        }
+    
+        for(const j in questions[i].answers){
+            questions[i].answers[j].ans_by.password = null; // erase password
+            questions[i].answers[j].ans_by.email = null; // erase the user email
+        }
     }
     res.status(200).send(questions);
 }
@@ -90,13 +126,31 @@ const getQuestion = async (req,res) => {
 const getQuestionById = async (req,res) => {
     const q = await question.findOne({_id : req.params.id}).populate('asked_by').populate({
         path: 'answers',
-        populate: {
+        populate: [{
             path: 'ans_by',
             model: 'User'
+        },{
+            path: 'comment',
+            model: 'Comment'
+        }]
+    }).populate('tags').populate({
+        path: 'comment',
+        populate: {
+            path: 'posted_by',
+            model: 'User'
         }
-    }).populate('tags').orFail(new Error("No document found!")).exec();
-    q.asked_by.password = null;
-    q.asked_by.email = null;
+    }).orFail(new Error("No document found!")).exec();
+    q.asked_by.password = null; // erase the password 
+    q.asked_by.email = null; // erase the user email
+    for(const i in q.comment){
+        q.comment[i].posted_by.password = null; // erase password
+        q.comment[i].posted_by.email = null; // erase the user email
+    }
+
+    for(const i in q.answers){
+        q.answers[i].ans_by.password = null; // erase password
+        q.answers[i].ans_by.email = null; // erase the user email
+    }
     res.status(200).send(q);
 }
 
