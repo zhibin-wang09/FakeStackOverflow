@@ -57,7 +57,7 @@ const login = async (req, res) => {
 }
 
 const logout = async (req, res) => {
-    if(res.cookie.token === null){ // the user must be signed in to sign out
+    if(res.cookie["token"] === null){ // the user must be signed in to sign out
         return res.status(400).send("You are not signed in yet");
     }
     req.session.token = null;   // clear the session token
@@ -72,10 +72,10 @@ const logout = async (req, res) => {
 }
 
 const verify = async (req,res,next) => {
-    if(req.session.token === null){
+    if(req.cookies["token"] === null){
         return res.status(400).send("Please login first!");
     }
-    const decoded = jwt.verify(req.session.token,secret,{algorithms: ['HS256']}); // verify the jwt token
+    const decoded = jwt.verify(req.cookie["token"],secret,{algorithms: ['HS256']}); // verify the jwt token
     if(decoded.email){ // if this is valid we move on to the next operation
         req.body.email = decoded.email; // we will decode the cookie and obtain the email of the user and use it later
         next();
