@@ -15,17 +15,17 @@ const app = express();
 app.use(cors()); // allow this app to be accessed by other origins. This allows cors to be used to all routes available on server
 app.use(express.json()); // allow this app to destruct the json received from the request and populate the req.body field in the middleware. Only if Content-type : 'json'
 app.use(express.urlencoded({extended:true}))
-app.use(cookieParser())
 app.use(session({
     secret: secret,
     cookie: {
         httpOnly: true,
-        secure: false
+        maxAge: 30 * 60 * 24 * 60 * 60
     },
     name: "token",
     resave: false,
     saveUninitialized: true,
 }))
+app.use(cookieParser())
 app.use('/', router);
 const PORT = 8000;
 // running on apple silicon, make sure you installed mongod using homebrew
