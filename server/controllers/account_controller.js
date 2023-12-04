@@ -1,8 +1,6 @@
 const user = require('../models/account')
 const bcrypt = require('bcrypt')
-const jwt = require('jsonwebtoken')
 const saltRound = 10;
-const secret = process.argv[2]; // the fourth argument i.e. the secret
 
 const signup = async (req, res) => {
     // extract important fields
@@ -25,6 +23,10 @@ const signup = async (req, res) => {
     res.status(200).send("Account created successfully"); 
 }
 
+const getSession = async (req, res) => {
+    return res.status(200).send(req.session.email);
+}
+
 const login = async (req, res) => {
     // extract important fields
     let password = req.body.password;
@@ -40,44 +42,24 @@ const login = async (req, res) => {
     if(!verdict){// if the password is wrong
         return res.status(401).send("Wrong password!");
     }
-    const token = jwt.sign({email: email}, secret,{ algorithm: 'HS256' }); // make a jwt token
-    req.session.regenerate(function (err){
-        if(err){
-            return res.status(400).send(err);
-        }
-        req.session.token = token;
-        req.session.save(function(err){
-            if(err) return res.status(400).send(err);
-            req.session.token = token; // store the token in our session storage
-            res.cookie('token', token, { // send the cookie to the client
-                httpOnly: true});
-            res.redirect(200,'/get/questions'); // redirect to home page
-        })
-    })
+    req.session.email = email;
+    return res.status(200).send("Login successful");
 }
 
 const logout = async (req, res) => {
     if(res.cookie["token"] === null){ // the user must be signed in to sign out
         return res.status(400).send("You are not signed in yet");
     }
-    req.session.token = null;   // clear the session token
-    req.session.save(function(err){
-        if(err) return res.status(400).send(err);
-        req.session.regenerate(function(err){
-            if(err) return res.status(400).send(err);
-            res.clearCookie('token') // clear the cookie on the client side
-            res.redirect(200, '') // fill in this for back to the welcome page  
-        })
-    })
+    req.session.destroy(function (err){
+        if(err) res.status(400).send(err);
+        //res.clearCookie('token') // clear the cookie on the client side
+        res.redirect(200, '') // fill in this for back to the welcome page  
+    });
 }
 
-const verify = async (req,res,next) => {
-    if(req.cookies["token"] === null){
-        return res.status(400).send("Please login first!");
-    }
-    const decoded = jwt.verify(req.cookie["token"],secret,{algorithms: ['HS256']}); // verify the jwt token
-    if(decoded.email){ // if this is valid we move on to the next operation
-        req.body.email = decoded.email; // we will decode the cookie and obtain the email of the user and use it later
+const verify = async (req,res,next) => { 
+    if(req.session.email){ // if this is valid we move on to the next operation
+        req.body.email = req.session.email; // we will decode the cookie and obtain the email of the user and use it later
         next();
     }else{ // if this is not valid we stop here and return error
         res.status(401).send("You are not authorized to continue access the resource");
@@ -104,4 +86,4 @@ const getUser = async (req,res) => {
     res.status(200).send(user);
 }
 
-module.exports = {signup, login, logout, verify, increaseReputation, decreaseReputation,getUser}
+module.exports = {signup, login, logout, verify, increaseReputation, decreaseReputation,getUser, getSession}

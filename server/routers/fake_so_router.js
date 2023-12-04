@@ -4,7 +4,7 @@ const {postQuestion, getQuestionByKeyword ,getQuestion, updateView, getQuestionB
     deleteQuestion,modifyQuestion} = require('../controllers/question_controller'); // crud methods for questions
 const {getAnswers, postAnswers, increaseAnswerVote, decreaseAnswerVote, deleteAnswer} = require('../controllers/answer_controller'); // crud methods for answers
 const {getTag} = require('../controllers/tag_controller'); // crud method for tags
-const {signup, login, logout, verify, increaseReputation, decreaseReputation,getUser} = require('../controllers/account_controller'); // has all the authroization & authentication functions
+const {signup, login, logout, verify, increaseReputation, decreaseReputation,getUser, getSession} = require('../controllers/account_controller'); // has all the authroization & authentication functions
 const {postCommentToQuestion,postCommentToAnswer, increaseCommentVote, decreaseCommentVote} = require('../controllers/comment_controller');
 const router = express.Router();
 
@@ -17,6 +17,7 @@ router.route('/post/answer/:id').post(verify,postAnswers); // add brand new answ
 router.route('/post/questions/updateview/:id').post(updateView); // update the # of views of a question
 router.route('/get/tags').get(getTag); // retrieve all the tags
 router.route('/login').post(login);
+router.route('/session').post(getSession);
 router.route('/signup').post(signup);
 router.route('/logout').post(logout);
 router.route('/post/increaseQuestionVote/:id').post(increaseQuestionVote);

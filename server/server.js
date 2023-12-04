@@ -22,9 +22,9 @@ app.use(session({
         httpOnly: true,
         secure: false
     },
+    name: "token",
     resave: false,
     saveUninitialized: true,
-    store: new MongoStore({mongoUrl: db})
 }))
 app.use('/', router);
 const PORT = 8000;
