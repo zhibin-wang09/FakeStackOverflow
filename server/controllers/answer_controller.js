@@ -1,4 +1,5 @@
 // this file takes care of handling requests related to answers
+const answers = require('../models/answers');
 const answer = require('../models/answers'); // obtain the answer collection
 const question = require('../models/questions');
 
@@ -36,7 +37,12 @@ const decreaseAnswerVote = async (req,res) => {
 }
 
 const deleteAnswer = async (req,res) => { // deleting an answer will delete all of its associated comment
-
+    const id = req.params.id;
+    const a = await answers.findOne({_id: id}).populate("comment");
+    for(const i in a["comment"]){
+        await comment.deleteOne({_id : a['comment'][i]._id});
+    }
+    await answers.deleteOne({_id : id});
 }
 
 module.exports = {getAnswers, postAnswers, increaseAnswerVote, decreaseAnswerVote, deleteAnswer};

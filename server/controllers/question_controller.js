@@ -2,6 +2,7 @@
 const question = require('../models/questions') // obtain the question collection
 const tag = require('../models/tags');
 const answer = require('../models/answers');
+const comment = require('../models/comment');
 require('../models/account');
 
 
@@ -149,12 +150,38 @@ function scanKeyWords(input){
 }
 
 const deleteQuestion = async (req,res) => { // deleting a question will delete all of its associated comment and answers
-
+    const id = req.params.id;
+    const q = await question.findOne({_id: id}).populate('answers').populate('comment'); // populate the fields that we need to delete
+    for(const j in q["comment"]){
+        const commentId = q[i]['comment'][j]._id;
+        await comment.deleteOne({_id: commentId});
+    }
+    
+    for(const j in q["answers"]["comment"]){
+        for(const j in q['answers']["comment"]){
+            const commentId = q['answers']['comment']._id;
+            await comment.deleteOne({_id: commentId});
+        }
+        const answerId = q[i]['answers'][j]._id;
+        await answer.deleteOne({_id:answerId});
+    }
+    await question.deleteOne({_id:id});
+    res.status(200).send("Delete success");
 }
-
-const modifyQuestoin = async (req,res) => { // modifying existing quesition in the databse
-
+const modifyQuestion = async (req,res) => { // modifying existing quesition in the databse
+    const id = req.params.id;
+    const tags = [];
+    if(req.body.tags){
+        for(const t in req.body.tags){
+            const tagInDataBase = await tag.find({name: req.body.tags[t]}); // check if the tag already exist
+            if(tagInDataBase.length == 0){
+                const newTag = await tag.create({name : req.body.tags[t]});
+                tags.push(newTag);
+            }
+        }
+    }
+    await question.updateOne({_id: id}, {text: req.body.text, title: req.body.title, tags: tags});
 }
 
 module.exports = {postQuestion, getQuestionByKeyword ,getQuestion, updateView, getQuestionById, increaseQuestionVote, decreaseQuestionVote,
-deleteQuestion,modifyQuestoin}
+deleteQuestion,modifyQuestion}
