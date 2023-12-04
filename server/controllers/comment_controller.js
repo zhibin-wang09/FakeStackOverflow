@@ -22,11 +22,19 @@ const postCommentToAnswer = async (req,res) => { // a post method to create a ne
 const increaseCommentVote = async (req,res) => {
     const c = await comment.findOne({_id : req.params.id});
     await comment.updateOne({_id: req.params.id}, {votes: c.votes + 1});
+    res.status(200).send();
 }
 
 const decreaseCommentVote = async (req,res) => {
     const c = await comment.findOne({_id : req.params.id});
     await comment.updateOne({_id: req.params.id}, {votes: c.votes - 1});
+    res.status(200).send();
+}
+
+const deleteComment = async (req,res) => {
+    const id = req.params.id;
+    await comment.deleteOne({_id: id});
+    res.status(200).send();
 }
 
 module.exports = {postCommentToQuestion,postCommentToAnswer, increaseCommentVote, decreaseCommentVote};
