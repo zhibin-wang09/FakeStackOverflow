@@ -8,7 +8,7 @@ const {signup, login, logout, verify, increaseReputation, decreaseReputation,get
 const {postCommentToQuestion,postCommentToAnswer, increaseCommentVote, decreaseCommentVote} = require('../controllers/comment_controller');
 const router = express.Router();
 
-router.route('/get/questions').get(verify,getQuestion); // retrieve questions
+router.route('/get/questions').get(getQuestion); // retrieve questions
 router.route('/get/questions/:id').get(getQuestionById); // retrieve questions by id
 router.route('/post/questionskeyword').post(getQuestionByKeyword) // retrieve questions by keywords
 router.route('/post/questions').post(verify,postQuestion); // add brand new question and update existing quesitions

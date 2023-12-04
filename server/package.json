@@ -16,7 +16,8 @@
     "cors": "*",
     "connect-mongodb-session": "*",
     "jsonwebtoken" : "*",
-    "express-session" : "*"
+    "express-session" : "*",
+    "cookie-parser": "*"
   },
   "devDependencies": {
     "eslint": "^8.53.0",
