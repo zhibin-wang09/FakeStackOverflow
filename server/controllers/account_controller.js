@@ -47,7 +47,7 @@ const login = async (req, res) => {
 }
 
 const logout = async (req, res) => {
-    if(res.cookie["token"] === null){ // the user must be signed in to sign out
+    if(req.session.email === null){ // the user must be signed in to sign out
         return res.status(400).send("You are not signed in yet");
     }
     req.session.destroy(function (err){
