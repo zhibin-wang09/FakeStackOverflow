@@ -13,6 +13,7 @@ const secret = process.argv[2]; // the third argument i.e. the secret
 const app = express();
 app.use(cors()); // allow this app to be accessed by other origins. This allows cors to be used to all routes available on server
 app.use(express.json()); // allow this app to destruct the json received from the request and populate the req.body field in the middleware. Only if Content-type : 'json'
+app.use(express.urlencoded({extended:true}))
 var store = new SessionStore({
     uri: db,
     collection: 'sessions'
