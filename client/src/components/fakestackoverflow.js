@@ -109,12 +109,31 @@ export default function FakeStackOverFlow() {
   }
   
 
-  function handleSort(e) {
-    setSortAndPage({
-      sortMethod: e.target.id,
-      page: "question-page"
-    });
+  const handleSort = (e) => {
+    const buttonId = e.target.id;
+    console.log(e.target.id);
+    if (buttonId === 'login-btn') {
+      
+      setSortAndPage({
+        sortMethod: buttonId,
+        page: "login"
+      });
+
+    } else if (buttonId === 'signup-btn') {
+
+      setSortAndPage({
+        sortMethod: buttonId,
+        page: "signup"
+      });
+
+    } else {
+      setSortAndPage({
+        sortMethod: buttonId,
+        page: "question-page"
+      });
+    }
   }
+  
 
   function handlePageChange(e) {
     setCurrentQuestion(null);
