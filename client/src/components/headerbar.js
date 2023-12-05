@@ -7,7 +7,7 @@ export default function HeaderBar(props) {
       <input
         id="search"
         placeholder="Search..."
-        className="basis-3/6 border-2 rounded border-slate-400 pl-2 outline-none"
+        className="basis-2/6 border-2 rounded border-slate-400 pl-2 outline-none"
         value={props.searchValue}
         onChange={props.search}
         onKeyDown={props.search} // search on enter
@@ -21,6 +21,12 @@ export default function HeaderBar(props) {
         </button>
         <button id="unanswered-btn" className="bg-blue-500 hover:bg-blue-400 text-white font-bold py-2 px-4 border-b-1 border-blue-700 hover:border-blue-500 rounded mx-2" onClick={props.handleSort}>
           Unanswered
+        </button>
+        <button id="login-btn" className="bg-blue-500 hover:bg-blue-400 text-white font-bold py-2 px-4 border-b-1 border-blue-700 hover:border-blue-500 rounded mx-2" onClick={props.handleSort}>
+          Login
+        </button>
+        <button id="signup-btn" className="bg-blue-500 hover:bg-blue-400 text-white font-bold py-2 px-4 border-b-1 border-blue-700 hover:border-blue-500 rounded mx-2" onClick={props.handleSort}>
+          Sign Up
         </button>
       </div>
     </div>
