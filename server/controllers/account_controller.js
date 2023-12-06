@@ -52,7 +52,6 @@ const login = async (req, res) => {
         return res.status(401).send("Wrong password!");
     }
     req.session.email = email;
-    console.log(req.session);
     return res.status(200).send("Login successful");
 }
 
@@ -68,7 +67,6 @@ const logout = async (req, res) => {
 }
 
 const verify = async (req,res,next) => { 
-    console.log(req.session);
     if(req.session.email){ // if this is valid we move on to the next operation
         req.body.email = req.session.email; // we will decode the cookie and obtain the email of the user and use it later
         next();

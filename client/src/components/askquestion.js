@@ -44,6 +44,8 @@ export default function AskQuestion(props) {
                 title: titlet,
                 text: text,
                 tags: tagsarr,
+            },{
+                withCredentials: true
             })
             .then(response => {
                 // Handle successful post

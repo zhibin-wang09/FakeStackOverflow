@@ -1,5 +1,4 @@
 import { useState } from 'react';
-import ShortInput from './short_input';
 import TextArea from './textarea';
 import axios from 'axios'; // Import Axios
 
@@ -17,6 +16,8 @@ export default function PostAnswer(props) {
             // Post answer to backend
             axios.post(`http://localhost:8000/post/answer/${props.currQuestionId}`, {
                 text: trimmedQuestionText,
+            },{
+                withCredentials: true
             })
             .then(response => {
                 // Handle successful post
