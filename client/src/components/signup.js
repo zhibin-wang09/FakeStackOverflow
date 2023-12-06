@@ -24,7 +24,8 @@ export default function Signup(props){
       password: password
     }).then(response => {
       console.log(response);
-      
+      props.handlePageChange({target: {id: 'login'}});
+
     }).catch(response => {
       console.log(response);
     })
