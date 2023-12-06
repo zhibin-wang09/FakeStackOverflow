@@ -4,6 +4,7 @@ const tag = require('../models/tags');
 const answer = require('../models/answers');
 const comment = require('../models/comment');
 const answers = require('../models/answers');
+const user = require('../models/account');
 require('../models/account');
 
 
@@ -17,7 +18,8 @@ const postQuestion = async (req, res) => { // a post method to handle new questi
             tags.push(newTag);
         }
     }
-    const q = await question.create({title : req.body.title, text : req.body.text, tags : tags, asked_by : req.body.asked_by});
+    const u = await user.findOne({email: req.body.email}); 
+    const q = await question.create({title : req.body.title, text : req.body.text, tags : tags, asked_by : u});
     res.status(200).send(q);
 }
 
@@ -159,7 +161,7 @@ const increaseQuestionVote = async (req,res) => {
     const id = req.params.id; // use the id to identify the question
     const q = await question.findOne({_id: id}); // find the question and its associated information
     await question.updateOne({_id: id}, {votes : q.votes + 1}); // increase the reputation by 1
-    res.status(200).send()
+    res.status(200).send(q)
 }
 
 // require the request to have a parameter of the id of the data in the database. Client side should have this id that was initially sent when fetching questions

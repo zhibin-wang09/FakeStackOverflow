@@ -8,12 +8,12 @@ export default function AskQuestion(props) {
     const [title, setTitle] = useState("");
     const [questionText, setQuestionText] = useState("");
     const [tags, setTags] = useState("");
-    const [username, setUsername] = useState("");
     const [submitted, setSubmitted] = useState(false);
     const [isTitleMoreThan100Char, setIsTitleMoreThan100char] = useState(false);
     const [isMoreThan5Tags, setIsMoreThan5Tags] = useState(false);
     const [isEachTagMoreThan10Char, setIsEachTagMoreThan10Char] = useState(false);
     const [isInvalidHyperlink, setIsInvAlidHyperLink] = useState(false);
+    const [errorMsg, setErrorMsg] = useState('');
 
     const handleSubmit = (e) => {
         e.preventDefault();
@@ -22,7 +22,7 @@ export default function AskQuestion(props) {
         let tagsarr = tags.toLowerCase().trim().split(" ");
         let titlet = title.trim();
         let text = questionText.trim();
-        let usernamet = username.trim();
+        setErrorMsg('');
 
         // Validation checks
         let isTitleValid = titlet.length <= 100;
@@ -38,24 +38,24 @@ export default function AskQuestion(props) {
             return;
         }
 
-        if (titlet && text && tagsarr.length && usernamet) {
+        if (titlet && text && tagsarr.length) {
             // Post question to backend
             axios.post('http://localhost:8000/post/questions', {
                 title: titlet,
                 text: text,
                 tags: tagsarr,
-                asked_by: usernamet
+            },{
+                withCredentials: true
             })
             .then(response => {
                 // Handle successful post
                 setTitle("");
                 setQuestionText("");
                 setTags("");
-                setUsername("");
                 props.backToQuestions(); // Adjust as needed
             })
             .catch(error => {
-                console.error('Error posting question:', error);
+                setErrorMsg(error.response.data);
             });
         }
     };
@@ -63,6 +63,7 @@ export default function AskQuestion(props) {
     return (
         <div className="w-5/6 mt-4 ">
             <div className="mx-8">
+                <strong className='text-rose-600'>{errorMsg}</strong>
                 <form id="post-question-form" action="#" className="space-y-4" onSubmit={handleSubmit}>
                 <ShortInput
                     label="Question Title* (100 characters or less)"
@@ -88,16 +89,6 @@ export default function AskQuestion(props) {
                     value={tags}
                     setValue={setTags}
                     errorMessage={tags ? (isMoreThan5Tags ? "Maximum 5 tags" : (isEachTagMoreThan10Char ? "Each tag can have maximum 10 characters" : "")) : "This field is required"}
-                    id="question-text"
-                    placeholder=""
-                    submitted={submitted}
-                />
-
-                <ShortInput 
-                    label = "Username* (add details!)"
-                    value={username}
-                    setValue={setUsername}
-                    errorMessage={username ? "" : "This field is required"}
                     id="question-text"
                     placeholder=""
                     submitted={submitted}

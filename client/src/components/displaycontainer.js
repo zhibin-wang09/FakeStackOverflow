@@ -43,7 +43,6 @@ export default function DisplayContainer(props) {
             displayContent = <TagGroup updateQuestion={postQuestion} backToQuestionsFromTags={backToQuestionsFromTags} />;
             break;
         case 'ask-question':
-            console.log('ask question page gogog');
             displayContent = <AskQuestion backToQuestions={backToQuestions} askQuestion={postQuestion} />;
             break;
         case 'post-answer':
@@ -53,8 +52,7 @@ export default function DisplayContainer(props) {
             displayContent = <QuestionPage handlePageChange={handlePageChange} currQuestionId={currQuestionId} />;
             break;
         case 'login':
-            console.log('login page gogog');
-            displayContent = <Login handlePageChange={handlePageChange} />;
+            displayContent = <Login backToQuestions= {backToQuestions} handlePageChange={handlePageChange} />;
             break;
         case 'signup':
             displayContent = <Signup handlePageChange={handlePageChange} />;
