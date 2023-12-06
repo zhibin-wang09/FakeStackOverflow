@@ -24,7 +24,7 @@ router.route('/profile').get(verify, getCurrentUserInfo);
 router.route('/put/increaseQuestionVote/:id').put(increaseQuestionVote);
 router.route('/put/decreaseQuestionVote/:id').put(decreaseQuestionVote);
 router.route('/put/increaseAnswerVote/:id').put(increaseAnswerVote);
-router.route('put/decreaseAnswerVote/:id').put(decreaseAnswerVote);
+router.route('/put/decreaseAnswerVote/:id').put(decreaseAnswerVote);
 router.route('/put/increaseReq/:id').put(increaseReputation);
 router.route('/put/decreaseReq/:id').put(decreaseReputation);
 router.route('/user').get(getUser);

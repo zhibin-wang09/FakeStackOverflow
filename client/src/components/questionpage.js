@@ -131,8 +131,7 @@ export default function QuestionPage({ handlePageChange, currQuestionId }) {
     axios.put(`http://localhost:8000/put/increaseAnswerVote/${e.target.id}`,{},{
       withCredentials: true
     }).then(response => {
-
-      setAnswers(answers.map(a => a._id === e.target.answerId ? response.data : a)); // replace the old answer to render new vote amonut
+      setAnswers(answers.map(a => a._id === e.target.id ? response.data : a)); // replace the old answer to render new vote amonut
     }).catch(err => {
       console.log(err.response.data)
     })
@@ -142,8 +141,7 @@ export default function QuestionPage({ handlePageChange, currQuestionId }) {
     axios.put(`http://localhost:8000/put/decreaseAnswerVote/${e.target.id}`,{},{
       withCredentials: true
     }).then(response => {
-
-      setAnswers(answers.map(a => a._id === e.target.answerId ? response.data : a)); // replace the old answer to render new vote amonut
+      setAnswers(answers.map(a => a._id === e.target.id ? response.data : a)); // replace the old answer to render new vote amonut
     }).catch(err => {
       console.log(err.response.data)
     })
