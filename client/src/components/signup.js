@@ -26,8 +26,8 @@ export default function Signup(props){
       console.log(response);
       props.handlePageChange({target: {id: 'login'}});
 
-    }).catch(response => {
-      console.log(response);
+    }).catch(err => {
+      setErrorMsg(err.message);
     })
 
   }
@@ -58,7 +58,7 @@ export default function Signup(props){
               type="email"
               id="email"
               className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:border-blue-500"
-              placeholder="Enter your email"
+              placeholder="Enter your email: in the format example@example.anything"
               onChange={handleInputChange}
               pattern='[^@\s]+@[^@\s]+\.[^@\s]+'
               required

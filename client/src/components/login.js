@@ -20,7 +20,7 @@ export default function Login(props){
       console.log(res);
       props.backToQuestions();
     }).catch((err) => {
-      setErrorMsg();
+      setErrorMsg(err.message);
     })
   }
 

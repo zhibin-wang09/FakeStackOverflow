@@ -73,7 +73,7 @@ const verify = async (req,res,next) => {
         req.body.email = req.session.email; // we will decode the cookie and obtain the email of the user and use it later
         next();
     }else{ // if this is not valid we stop here and return error
-        res.status(401).send("You are not authorized to continue access the resource");
+        res.status(401).send("You are not authorized to continue access the resource. Please Login.");
     }
 }
 
