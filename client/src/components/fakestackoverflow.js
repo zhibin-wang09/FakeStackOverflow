@@ -14,7 +14,6 @@ export default function FakeStackOverFlow() {
   const [currQuestionId, setCurrQuestionId] = useState(null);
   const [data, setData] = useState([]);
   const [dataNotChanging, setDataNotChanging] = useState([]);
-  const [curUser, setCurUser] = useState({});
 
   useEffect(() => {
     axios.get('http://localhost:8000/get/questions')
