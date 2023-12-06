@@ -1,12 +1,12 @@
 import axios from "axios";
 import React, { useEffect, useState } from "react";
 
-export default function ProfilePage() {
+export default function ProfilePage(props) {
   // placeholder data that I use for testing this crap cus idk what backend doin 
   const [user, setUser] = useState({});
   const [answers, setAnswers] = useState([]);
   const [questions, setQuestions] = useState([]);
-  const [tags, setTags] = useState([]);
+  const [tags] = useState([]);
 
   useEffect(() => {
     axios.get('http://localhost:8000/profile',{
@@ -23,7 +23,10 @@ export default function ProfilePage() {
   },[])
 
   const editQuestion = (questionId) => {
-    // open up modal to edit question
+    // change the display container page to edit-question
+    // pass in the questionId to the edit-question page
+    props.handlePageChange({target: {id: 'edit-question'}});
+    
     
     console.log(`Editing question with ID ${questionId}`);
   };
@@ -77,22 +80,22 @@ export default function ProfilePage() {
           <h3 className="text-lg font-bold mb-2">My Questions</h3>
           <ul>
             {questions.map((question) => (
-              <li key={question._id} className="mb-2">
+              <li id= {question._id} key={question._id} className="mb-2">
                 <a
                   href={`/questions/${question.id}`}
                   className="text-blue-500 hover:underline"
                 >
                   {question.title}
                 </a>
-                <button
+                <button id = {question._id}
                   className="ml-2 text-sm text-gray-500"
-                  onClick={() => editQuestion(question.id)}
+                  onClick={() => editQuestion(question._id)}
                 >
                   Edit
                 </button>
-                <button
+                <button id = {question._id}
                   className="ml-2 text-sm text-red-500"
-                  onClick={() => deleteQuestion(question.id)}
+                  onClick={() => deleteQuestion(question._id)}
                 >
                   Delete
                 </button>
@@ -111,13 +114,13 @@ export default function ProfilePage() {
                   <>
                     <button
                       className="ml-2 text-sm text-gray-500"
-                      onClick={() => editTag(tag.id)}
+                      onClick={() => editTag(tag.id)} // Fix: Pass tag.id instead of tag._id
                     >
                       Edit
                     </button>
                     <button
                       className="ml-2 text-sm text-red-500"
-                      onClick={() => deleteTag(tag.id)}
+                      onClick={() => deleteTag(tag.id)} // Fix: Pass tag.id instead of tag._id
                     >
                       Delete
                     </button>
@@ -142,13 +145,13 @@ export default function ProfilePage() {
                 {/* Display user's answer */}
                 <button
                   className="ml-2 text-sm text-gray-500"
-                  onClick={() => editAnswer(answeredQuestion.id)}
+                  onClick={() => editAnswer(answeredQuestion.id)} // Fix: Pass answeredQuestion.id instead of answeredQuestion._id
                 >
                   Edit Answer
                 </button>
                 <button
                   className="ml-2 text-sm text-red-500"
-                  onClick={() => deleteAnswer(answeredQuestion.id)}
+                  onClick={() => deleteAnswer(answeredQuestion.id)} // Fix: Pass answeredQuestion.id instead of answeredQuestion._id
                 >
                   Delete Answer
                 </button>
