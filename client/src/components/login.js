@@ -16,8 +16,9 @@ export default function Login(props){
       password: password
     }).then((res) => {
       console.log(res);
+      props.backToQuestions();
     }).catch((err) => {
-      setErrorMsg("wrong");
+      setErrorMsg(err);
     })
   }
 

@@ -52,7 +52,7 @@ export default function DisplayContainer(props) {
             displayContent = <QuestionPage handlePageChange={handlePageChange} currQuestionId={currQuestionId} />;
             break;
         case 'login':
-            displayContent = <Login handlePageChange={handlePageChange} />;
+            displayContent = <Login backToQuestions= {backToQuestions} handlePageChange={handlePageChange} />;
             break;
         case 'signup':
             displayContent = <Signup handlePageChange={handlePageChange} />;
