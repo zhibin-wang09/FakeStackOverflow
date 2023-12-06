@@ -76,7 +76,7 @@ export default function ProfilePage() {
           <h3 className="text-lg font-bold mb-2">My Questions</h3>
           <ul>
             {questions.map((question) => (
-              <li key={question.id} className="mb-2">
+              <li key={question._id} className="mb-2">
                 <a
                   href={`/questions/${question.id}`}
                   className="text-blue-500 hover:underline"
@@ -104,7 +104,7 @@ export default function ProfilePage() {
           <h3 className="text-lg font-bold mb-2">My Tags</h3>
           <ul>
             {tags.map((tag) => (
-              <li key={tag.id} className="mb-2">
+              <li key={tag._id} className="mb-2">
                 <span>{tag.name}</span>
                 {tag.editable && (
                   <>
@@ -131,7 +131,7 @@ export default function ProfilePage() {
           <h3 className="text-lg font-bold mb-2">Questions I've Answered</h3>
           <ul>
             {answers.map((answeredQuestion) => (
-              <li key={answeredQuestion.id} className="mb-2">
+              <li key={answeredQuestion._id} className="mb-2">
                 <a
                   href={`/questions/${answeredQuestion.id}`}
                   className="text-blue-500 hover:underline"
