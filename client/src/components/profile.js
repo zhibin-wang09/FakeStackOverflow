@@ -26,7 +26,8 @@ export default function ProfilePage() {
   };
 
   const editQuestion = (questionId) => {
-    // do this later
+    // open up modal to edit question
+    
     console.log(`Editing question with ID ${questionId}`);
   };
 
