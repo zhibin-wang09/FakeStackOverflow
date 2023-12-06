@@ -54,6 +54,48 @@ export default function QuestionPage({ handlePageChange, currQuestionId }) {
     );
   };
 
+  const handleQuestionUpvote = (e) => {
+    axios.post(`http://localhost:8000/post/increaseQuestionVote/${currQuestionId}`,{},{
+      withCredentials: true
+    }).then(response => {
+      setQuestion(response.data); // update question to render new upvote amount
+    }).catch(err => {
+      console.log(err.response.data)
+    })
+  }
+
+  const handleQuestionDownvote = (e) => {
+    axios.post(`http://localhost:8000/post/decreaseQuestionVote/${currQuestionId}`,{},{
+      withCredentials: true
+    }).then(response => {
+      setQuestion(response.data); // update question to render new upvote amount
+    }).catch(err => {
+      console.log(err.response.data)
+    })
+  }
+
+  const handleAnswerUpvote = (e) => {
+    axios.post(`http://localhost:8000/post/increaseAnswerVote/${e.target.id}`,{},{
+      withCredentials: true
+    }).then(response => {
+
+      setAnswers(answers.map(a => a._id === e.target.answerId ? response.data : a)); // replace the old answer to render new vote amonut
+    }).catch(err => {
+      console.log(err.response.data)
+    })
+  }
+
+  const handleAnswerDownvote = (e) => {
+    axios.post(`http://localhost:8000/post/decreaseAnswerVote/${e.target.id}`,{},{
+      withCredentials: true
+    }).then(response => {
+
+      setAnswers(answers.map(a => a._id === e.target.answerId ? response.data : a)); // replace the old answer to render new vote amonut
+    }).catch(err => {
+      console.log(err.response.data)
+    })
+  }
+
   return (
     <div>
       <div className="bg-gray-100 rounded-lg p-4 shadow-md mb-4 mx-8">
@@ -65,10 +107,10 @@ export default function QuestionPage({ handlePageChange, currQuestionId }) {
         </div>
         <div className="mt-2">{question.text === undefined ? '' : extractLinks(question.text)}</div>
           <div className="mt-4">
-            <button className="text-blue-500 mr-4" onClick={() => console.log("Upvote clicked")}>
+            <button className="text-blue-500 mr-4" onClick={handleQuestionUpvote}>
               Upvote
             </button>
-            <button className="text-red-500" onClick={() => console.log("Downvote clicked")}>
+            <button className="text-red-500" onClick={handleQuestionDownvote}>
               Downvote
             </button>
             <div className="text-gray-500 mt-1">Votes: {question.votes}</div>
@@ -90,10 +132,10 @@ export default function QuestionPage({ handlePageChange, currQuestionId }) {
           </div>
           <div className="mt-2">{extractLinks(answer.text)}</div>
           <div className="mt-4">
-            <button className="text-blue-500 mr-4" onClick={() => console.log("Upvote clicked")}>
+            <button className="text-blue-500 mr-4" onClick={handleAnswerUpvote} id = {answer._id}> 
               Upvote
             </button>
-            <button className="text-red-500" onClick={() => console.log("Downvote clicked")}>
+            <button className="text-red-500" onClick={handleAnswerDownvote} id = {answer._id}>
               Downvote
             </button>
             <div className="text-gray-500 mt-1">Votes: {answer.votes}</div>

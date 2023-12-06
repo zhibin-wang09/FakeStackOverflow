@@ -17,7 +17,6 @@ export default function PostAnswer(props) {
             // Post answer to backend
             axios.post(`http://localhost:8000/post/answer/${props.currQuestionId}`, {
                 text: trimmedQuestionText,
-                ans_by: trimmedUsername
             })
             .then(response => {
                 // Handle successful post
