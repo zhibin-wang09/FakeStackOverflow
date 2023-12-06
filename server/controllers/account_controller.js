@@ -1,6 +1,8 @@
 const user = require('../models/account')
 const bcrypt = require('bcrypt')
 const saltRound = 10;
+const question = require('../models/questions')
+const answers = require('../models/answers')
 
 const signup = async (req, res) => {
     // extract important fields
@@ -27,6 +29,13 @@ const getSession = async (req, res) => {
     return res.status(200).send(req.session.email);
 }
 
+const getCurrentUserInfo = async (req,res) => {
+    const u = await user.find({email: req.body.email}); // the current user from the client side making the request
+    const q = await question.find({asked_by: u}); // find all the question asscoiated with the user
+    const a = await answers.find({ans_by: u}); // find all the answers associated with the user
+    res.status(200).send({q,a,u}); 
+}
+
 const login = async (req, res) => {
     // extract important fields
     let password = req.body.password;
@@ -43,6 +52,7 @@ const login = async (req, res) => {
         return res.status(401).send("Wrong password!");
     }
     req.session.email = email;
+    console.log(req.session);
     return res.status(200).send("Login successful");
 }
 
@@ -58,6 +68,7 @@ const logout = async (req, res) => {
 }
 
 const verify = async (req,res,next) => { 
+    console.log(req.session);
     if(req.session.email){ // if this is valid we move on to the next operation
         req.body.email = req.session.email; // we will decode the cookie and obtain the email of the user and use it later
         next();
@@ -86,4 +97,4 @@ const getUser = async (req,res) => {
     res.status(200).send(user);
 }
 
-module.exports = {signup, login, logout, verify, increaseReputation, decreaseReputation,getUser, getSession}
+module.exports = {signup, login, logout, verify, increaseReputation, decreaseReputation,getUser, getSession,getCurrentUserInfo}

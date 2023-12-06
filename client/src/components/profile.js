@@ -1,29 +1,26 @@
-import React from "react";
+import axios from "axios";
+import React, { useEffect, useState } from "react";
 
 export default function ProfilePage() {
   // placeholder data that I use for testing this crap cus idk what backend doin 
-  const user = {
-    username: "JohnDoe",
-    memberSince: "January 2022",
-    reputation: 150,
-    questions: [
-      { id: 1, title: "How to use React Hooks?" },
-      { id: 2, title: "Best practices for REST API design" },
-    ],
-    tags: [
-      { id: 1, name: "react", editable: true }, // editable means user can edit/delete this tag
-      { id: 2, name: "javascript", editable: false }, // testing if we can hide the edit/delete buttons
-    ],
-    answeredQuestions: [
-      {
-        id: 3,
-        title: "What is the difference between let and const in JavaScript?",
-        answers: [
-          { id: 1, text: "Let allows reassignment, const does not." },
-        ],
-      },
-    ],
-  };
+  const [user, setUser] = useState({});
+  const [answers, setAnswers] = useState([]);
+  const [questions, setQuestions] = useState([]);
+  const [tags, setTags] = useState([]);
+
+  useEffect(() => {
+    axios.get('http://localhost:8000/profile',{
+      withCredentials: true
+    })
+    .then(response => {
+      console.log(response);
+      setUser(response.data.u[0]);
+      setQuestions(response.data.q);
+      setAnswers(response.data.a);
+    }).catch(err => {
+      console.log(err);
+    })
+  },[])
 
   const editQuestion = (questionId) => {
     // do this later
@@ -78,7 +75,7 @@ export default function ProfilePage() {
         <div>
           <h3 className="text-lg font-bold mb-2">My Questions</h3>
           <ul>
-            {user.questions.map((question) => (
+            {questions.map((question) => (
               <li key={question.id} className="mb-2">
                 <a
                   href={`/questions/${question.id}`}
@@ -106,7 +103,7 @@ export default function ProfilePage() {
         <div>
           <h3 className="text-lg font-bold mb-2">My Tags</h3>
           <ul>
-            {user.tags.map((tag) => (
+            {tags.map((tag) => (
               <li key={tag.id} className="mb-2">
                 <span>{tag.name}</span>
                 {tag.editable && (
@@ -133,7 +130,7 @@ export default function ProfilePage() {
         <div>
           <h3 className="text-lg font-bold mb-2">Questions I've Answered</h3>
           <ul>
-            {user.answeredQuestions.map((answeredQuestion) => (
+            {answers.map((answeredQuestion) => (
               <li key={answeredQuestion.id} className="mb-2">
                 <a
                   href={`/questions/${answeredQuestion.id}`}

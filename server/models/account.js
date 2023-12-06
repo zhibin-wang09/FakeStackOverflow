@@ -10,7 +10,8 @@ var userSchema = new Schema({
     password: {type: String, required: true},
     email: {type: String, required: true},
     reputation: {type: Number, default: 0},
-    role: {type: String, default: 'normal'}
+    role: {type: String, default: 'normal'},
+    memberSince: {type: Date, default: Date.now}
 });
 
 module.exports = mongoose.model('User',userSchema);
