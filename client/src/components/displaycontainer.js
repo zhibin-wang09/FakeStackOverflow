@@ -7,6 +7,7 @@ import QuestionPage from './questionpage.js';
 import Login from './login.js';
 import Signup from './signup.js';
 import ProfilePage from './profile.js';
+import UpdateQuestion from './updatequestion.js';
 
 export default function DisplayContainer(props) {
     const { page, data, onQuestionClick, postQuestion, backToQuestionsFromTags, backToQuestions, postAnswer, handlePageChange, currQuestionId } = props;
@@ -58,7 +59,10 @@ export default function DisplayContainer(props) {
             displayContent = <Signup handlePageChange={handlePageChange} />;
             break;
         case'profile-page':
-            displayContent = <ProfilePage />;
+            displayContent = <ProfilePage handlePageChange={handlePageChange}/>;
+            break;
+        case 'edit-question': 
+            displayContent = <UpdateQuestion questionId={currQuestionId} handlePageChange={handlePageChange} />;
             break;
         default:
             break;
