@@ -53,8 +53,7 @@ export default function AskQuestion(props) {
                 props.backToQuestions(); // Adjust as needed
             })
             .catch(error => {
-                console.error('Error posting question:', error.message);
-                setErrorMsg(error.message);
+                setErrorMsg(error.response.data);
             });
         }
     };

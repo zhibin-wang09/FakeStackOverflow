@@ -27,7 +27,7 @@ export default function Signup(props){
       props.handlePageChange({target: {id: 'login'}});
 
     }).catch(err => {
-      setErrorMsg(err.message);
+      setErrorMsg(err.response.data);
     })
 
   }

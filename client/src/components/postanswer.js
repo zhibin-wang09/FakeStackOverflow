@@ -5,16 +5,15 @@ import axios from 'axios'; // Import Axios
 
 export default function PostAnswer(props) {
     const [questionText, setQuestionText] = useState("");
-    const [username, setUsername] = useState("");
     const [submitted, setSubmitted] = useState(false);
+    const [errorMsg, setErrorMsg] = useState('');
 
     const handleSubmit = (e) => {
         e.preventDefault();
         setSubmitted(true);
         const trimmedQuestionText = questionText.trim();
-        const trimmedUsername = username.trim();
 
-        if (trimmedQuestionText !== "" && trimmedUsername !== "") {
+        if (trimmedQuestionText !== "") {
             // Post answer to backend
             axios.post(`http://localhost:8000/post/answer/${props.currQuestionId}`, {
                 text: trimmedQuestionText,
@@ -27,10 +26,9 @@ export default function PostAnswer(props) {
                 props.backToQuestions();
                 // Reset form fields
                 setQuestionText("");
-                setUsername("");
             })
             .catch(error => {
-                console.error('Error posting answer:', error);
+                setErrorMsg(error.response.data);
             });
 
         }
@@ -39,18 +37,8 @@ export default function PostAnswer(props) {
     return (
         <div className="w-5/6 mt-4 ">
             <div className="mx-8">
+                <strong className='text-rose-600'>{errorMsg}</strong>
                 <form id="post-answer-form" action="#" className="space-y-4" onSubmit={handleSubmit}>
-                <ShortInput
-                    label="Username* (Posting under this name)"
-                    value={username}
-                    setValue={setUsername}
-                    errorMessage={(username ? "" : "This field is required") || (username.length > 100 ? "Title must be 100 characters or less" : "") 
-                    || (username.trim() !== "" ? "" : "Username must not be only spaces")
-                    }
-                    id="question-title"
-                    placeholder="Write a title..."  
-                    submitted={submitted}
-                />
                 <TextArea 
                     label="Answer Text* (Answer for post)"
                     value={questionText}
