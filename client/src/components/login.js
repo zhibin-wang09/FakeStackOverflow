@@ -14,11 +14,13 @@ export default function Login(props){
     axios.post('http://localhost:8000/login',{
       email: email,
       password: password
+    },{
+      withCredentials: true
     }).then((res) => {
       console.log(res);
       props.backToQuestions();
     }).catch((err) => {
-      setErrorMsg(err);
+      setErrorMsg();
     })
   }
 
