@@ -25,7 +25,7 @@ export default function QuestionPage({ handlePageChange, currQuestionId }) {
       }
     };
     fetchData();
-  }, [currQuestionId]);
+  }, []);
 
   const handleNext = () => {
     setStartIndex(startIndex + 5);
@@ -107,17 +107,18 @@ export default function QuestionPage({ handlePageChange, currQuestionId }) {
   };
 
   const handleQuestionUpvote = (e) => {
-    axios.post(`http://localhost:8000/post/increaseQuestionVote/${currQuestionId}`,{},{
+    axios.put(`http://localhost:8000/put/increaseQuestionVote/${currQuestionId}`,{},{
       withCredentials: true
     }).then(response => {
       setQuestion(response.data); // update question to render new upvote amount
+      console.log(response.data)
     }).catch(err => {
       console.log(err.response.data)
     })
   }
 
   const handleQuestionDownvote = (e) => {
-    axios.post(`http://localhost:8000/post/decreaseQuestionVote/${currQuestionId}`,{},{
+    axios.put(`http://localhost:8000/put/decreaseQuestionVote/${currQuestionId}`,{},{
       withCredentials: true
     }).then(response => {
       setQuestion(response.data); // update question to render new upvote amount
@@ -127,7 +128,7 @@ export default function QuestionPage({ handlePageChange, currQuestionId }) {
   }
 
   const handleAnswerUpvote = (e) => {
-    axios.post(`http://localhost:8000/post/increaseAnswerVote/${e.target.id}`,{},{
+    axios.put(`http://localhost:8000/put/increaseAnswerVote/${e.target.id}`,{},{
       withCredentials: true
     }).then(response => {
 
@@ -138,7 +139,7 @@ export default function QuestionPage({ handlePageChange, currQuestionId }) {
   }
 
   const handleAnswerDownvote = (e) => {
-    axios.post(`http://localhost:8000/post/decreaseAnswerVote/${e.target.id}`,{},{
+    axios.put(`http://localhost:8000/put/decreaseAnswerVote/${e.target.id}`,{},{
       withCredentials: true
     }).then(response => {
 
@@ -154,7 +155,7 @@ export default function QuestionPage({ handlePageChange, currQuestionId }) {
         <div className="flex justify-between items-center">
           <div className="flex items-center space-x-2">
             <div className="text-gray-600">Views: {question.views}</div>
-            <div className="text-gray-600">Posted by: {askedBy}</div>
+            <div className="text-gray-600">posted by: {askedBy}</div>
           </div>
         </div>
         <div className="mt-2">{question.text === undefined ? '' : extractLinks(question.text)}</div>

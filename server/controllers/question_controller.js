@@ -159,17 +159,19 @@ const getQuestionById = async (req,res) => {
 // require the request to have a parameter of the id of the data in the database. Client side should have this id that was initially sent when fetching questions
 const increaseQuestionVote = async (req,res) => {
     const id = req.params.id; // use the id to identify the question
-    const q = await question.findOne({_id: id}); // find the question and its associated information
+    let q = await question.findOne({_id: id}); // find the question and its associated information
     await question.updateOne({_id: id}, {votes : q.votes + 1}); // increase the reputation by 1
+    q = await question.findOne({_id: id}); // find the question and its associated information
     res.status(200).send(q)
 }
 
 // require the request to have a parameter of the id of the data in the database. Client side should have this id that was initially sent when fetching questions
 const decreaseQuestionVote = async (req,res) => {
     const id = req.params.id;
-    const q = await question.findOne({_id: id});
+    let q = await question.findOne({_id: id});
     await question.updateOne({_id: id}, {votes: q.votes -1});
-    res.status(200).send()
+    q = await question.findOne({_id: id}); // find the question and its associated information
+    res.status(200).send(q)
 }
 
 /**

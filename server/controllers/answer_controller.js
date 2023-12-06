@@ -23,17 +23,19 @@ const postAnswers = async (req, res) => { // a post method that handles new answ
 // require the request to have a parameter of the id of the data in the database. Client side should have this id that was initially sent when fetching answers
 const increaseAnswerVote = async (req,res) => {
     const id = req.params.id; // use the id to identify the question
-    const a = await answer.findOne({_id: id}); // find the answer and its associated information
+    let a = await answer.findOne({_id: id}); // find the answer and its associated information
     await answer.updateOne({_id: id}, {votes : a.votes + 1}); // increase the reputation by 1
+    a = await answer.findOne({_id: id}); // find the answer and its associated information
     res.status(200).send(a)
 }
 
 // require the request to have a parameter of the id of the data in the database. Client side should have this id that was initially sent when fetching answers
 const decreaseAnswerVote = async (req,res) => {
     const id = req.params.id;
-    const a = await answer.findOne({_id: id});
+    let a = await answer.findOne({_id: id});
     await answer.updateOne({_id: id}, {votes: a.votes - 1});
-    res.status(200).send()
+    a = await answer.findOne({_id: id});
+    res.status(200).send(a)
 }
 
 const deleteAnswer = async (req,res) => { // deleting an answer will delete all of its associated comment
