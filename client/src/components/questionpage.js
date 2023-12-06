@@ -3,11 +3,15 @@ import axios from 'axios';
 import formatTimeSince from "../formattime";
 import extractLinks from "../processInput.js";
 
+
 export default function QuestionPage({ handlePageChange, currQuestionId }) {
   const [answers, setAnswers] = useState([]);
   const [askedBy, setAskedBy] = useState("");
   const [question, setQuestion] = useState([]);
   const [startIndex, setStartIndex] = useState(0);
+  const [showPopup, setShowPopup] = useState(false);
+  const [comment, setComment] = useState("");
+  const [errorMsg, setErrorMsg] = useState("");
 
   useEffect(() => {
     const fetchData = async () => {
@@ -37,7 +41,7 @@ export default function QuestionPage({ handlePageChange, currQuestionId }) {
     if (!comments || comments.length === 0) {
       return <div>No comments available</div>; // Placeholder for no comments
     }
-    
+
     return comments.map((comment) => (
       <div key={comment._id} className="ml-8 mt-2 text-gray-600">
         {comment.text}
@@ -46,11 +50,59 @@ export default function QuestionPage({ handlePageChange, currQuestionId }) {
     ));
   };
 
+  // TODO: adding comment functionality
   const renderCommentButton = () => {
+    const handleAddComment = () => {
+      // if comment more than 140 characters, show error
+      if (comment.length > 140) {
+        setErrorMsg("Comment should be 50 characters or less.");
+        return;
+      }
+      // if rep less than 50, show error -> backend turd get on this
+      
+      // voting w/ no rep is allowed
+      // console.log("Add comment:", comment);
+      setShowPopup(false);
+      setComment("");
+      setErrorMsg("");
+    };
+  
     return (
-      <button className="text-gray-500 mt-2 underline ml-8" onClick={() => console.log("Add a comment clicked")}>
-        Add a comment
-      </button>
+      <div className="relative">
+        <button className="text-gray-500 mt-2 underline ml-8" onClick={() => setShowPopup(true)}>
+          Add a comment
+        </button>
+        {showPopup && (
+          <div className="fixed inset-0 flex items-center justify-center z-10">
+            <div className="absolute inset-0 bg-gray-900 opacity-50"></div>
+            <div className="absolute inset-0 flex items-center justify-center">
+              <div className="bg-white rounded-lg p-4 shadow-md">
+                <textarea
+                  className="w-full h-24 p-2 mb-2 border border-gray-300 rounded"
+                  placeholder="Enter your comment..."
+                  value={comment}
+                  onChange={(e) => setComment(e.target.value)}
+                ></textarea>
+                {errorMsg && <div className="text-red-500">{errorMsg}</div>}
+                <div className="flex justify-end">
+                  <button
+                    className="bg-blue-500 hover:bg-blue-400 text-white font-bold py-2 px-4 rounded"
+                    onClick={handleAddComment}
+                  >
+                    Add Comment
+                  </button>
+                  <button
+                    className="bg-gray-300 hover:bg-gray-200 text-gray-700 font-bold py-2 px-4 rounded ml-2"
+                    onClick={() => setShowPopup(false)}
+                  >
+                    Cancel
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
     );
   };
 

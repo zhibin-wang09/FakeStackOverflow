@@ -10,7 +10,7 @@ export default function SideBar(props) {
     };
   
     return (
-      <div className="w-1/6 border-r-2 bg-gray-200" style={{ height: 900 }}>
+      <div className="w-1/6 border-r-2 bg-gray-200" style={{ height: 1350 }}>
         <ul className="flex flex-col justify-start items-center h-full">
           <li className="mb-5"></li>
           <SideBarTabs 
