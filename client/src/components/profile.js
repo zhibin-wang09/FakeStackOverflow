@@ -8,6 +8,7 @@ export default function ProfilePage(props) {
   const [questions, setQuestions] = useState([]);
   const [tags,setTags] = useState([]);
   const [errMsg, setErrMsg] = useState("");
+  const [isAdmin, setIsAdmin] = useState(false);
 
   useEffect(() => {
     setErrMsg("");
@@ -19,6 +20,7 @@ export default function ProfilePage(props) {
       setQuestions(response.data.q);
       setAnswers(response.data.a);
       setTags(response.data.t);
+      setIsAdmin(response.data.u[0].role === 'normal' ? false : true); // sets if the user is admin or not
     }).catch(err => {
       setErrMsg(err.response.data);
     })
@@ -56,8 +58,7 @@ export default function ProfilePage(props) {
 
 
   const editAnswer = (answerId) => {
-    // do later
-    console.log(`Editing answer with ID ${answerId}`);
+    props.handlePageChange({target: {id: 'edit-answer'}, questionId: answerId});
   };
 
 
@@ -65,6 +66,14 @@ export default function ProfilePage(props) {
     // do later
     console.log(`Deleting answer with ID ${answerId}`);
   };
+
+  const renderAdminInfo = () => {
+    return (
+      <div className="mx-8 mt-4"> 
+
+      </div>
+    )
+  }
 
   return (
     <div className="mx-8 mt-4">
