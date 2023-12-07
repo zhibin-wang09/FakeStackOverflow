@@ -27,8 +27,15 @@ const postAnswers = async (req, res) => { // a post method that handles new answ
 const increaseAnswerVote = async (req,res) => {
     const id = req.params.id; // use the id to identify the question
     let a = await answer.findOne({_id: id}); // find the answer and its associated information
+    let u = a.ans_by;
+    u = await user.find({_id : u});
+    if(u[0].reputation < 50){
+        res.status(400).send("You can not vote yet. Reputation is less than 50. Please get more votes from other people.")
+        return;
+    }
     await answer.updateOne({_id: id}, {votes : a.votes + 1}); // increase the reputation by 1
     a = await answer.findOne({_id: id}).populate("ans_by"); // find the answer and its associated information
+    await user.updateOne({_id: u}, {reputation: u[0].reputation + 5});
     a.ans_by.password = null;
     a.ans_by.email = null;
     res.status(200).send(a)
@@ -38,8 +45,15 @@ const increaseAnswerVote = async (req,res) => {
 const decreaseAnswerVote = async (req,res) => {
     const id = req.params.id;
     let a = await answer.findOne({_id: id});
+    let u = a.ans_by;
+    u = await user.find({_id : u});
+    if(u[0].reputation < 50){
+        res.status(400).send("You can not vote yet. Reputation is less than 50. Please get more votes from other people.")
+        return;
+    }
     await answer.updateOne({_id: id}, {votes: a.votes - 1});
     a = await answer.findOne({_id: id}).populate("ans_by");
+    await user.updateOne({_id: u}, {reputation: u[0].reputation - 10});
     a.ans_by.password = null;
     a.ans_by.email = null;
     res.status(200).send(a)
