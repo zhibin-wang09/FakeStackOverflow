@@ -23,7 +23,7 @@ export default function PostAnswer(props) {
                 // Handle successful post
                 // You can also update the UI or redirect the user as needed
                             // Go back to main page
-                props.backToQuestions();
+                props.handlePageChange({target: {id :'detail'}, questionId: props.currQuestionId});
                 // Reset form fields
                 setQuestionText("");
             })
