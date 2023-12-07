@@ -14,7 +14,7 @@ export default function UpdateAnswer(props) {
         }).catch(error => {
             console.log(error);
         })
-    }, [])
+    }, [props.questionId])
 
     const handleSubmit = (e) => {
         e.preventDefault();

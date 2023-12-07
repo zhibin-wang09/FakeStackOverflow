@@ -5,7 +5,6 @@ import TextArea from './textarea';
 import extractLinks from '../processInput';
 
 export default function UpdateQuestion( {questionId, handlePageChange}) {
-    const [question, setQuestion] = useState({});
     const [title, setTitle] = useState('');
     const [questionText, setQuestionText] = useState('');
 
@@ -27,7 +26,7 @@ export default function UpdateQuestion( {questionId, handlePageChange}) {
                 for(const i in tags){
                     tagsString = tagsString.concat(tags[i].name + " "); // append the names to the string
                 }
-                if(tagsString.length != 0) tagsString.slice(0,tagsString.length -1); // remove the last space
+                if(tagsString.length !== 0) tagsString.slice(0,tagsString.length -1); // remove the last space
                 setTags(tagsString); // set the tag
             })
             .catch((error) => {

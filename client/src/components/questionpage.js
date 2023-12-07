@@ -9,7 +9,6 @@ export default function QuestionPage({ handlePageChange, currQuestionId }) {
   const [askedBy, setAskedBy] = useState("");
   const [question, setQuestion] = useState([]);
   const [startIndex, setStartIndex] = useState(0);
-  const [showPopup, setShowPopup] = useState(false);
   const [comment, setComment] = useState("");
   const [errorMsg, setErrorMsg] = useState("");
   const [showQuestionPopup, setShowQuestionPopup] = useState(false);
@@ -27,7 +26,7 @@ export default function QuestionPage({ handlePageChange, currQuestionId }) {
       }
     };
     fetchData();
-  }, []);
+  }, [currQuestionId]);
 
   const handleNext = () => {
     setStartIndex(startIndex + 5);
