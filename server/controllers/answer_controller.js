@@ -61,11 +61,24 @@ const decreaseAnswerVote = async (req,res) => {
 
 const deleteAnswer = async (req,res) => { // deleting an answer will delete all of its associated comment
     const id = req.params.id;
-    const a = await answers.findOne({_id: id}).populate("comment");
+    const a = await answer.findOne({_id: id}).populate("comment");
     for(const i in a["comment"]){ // go through the comments and delete each one
         await comment.deleteOne({_id : a['comment'][i]._id});
     }
     await answers.deleteOne({_id : id});
+    res.status(200).send("Success");
 }
 
-module.exports = {getAnswers, postAnswers, increaseAnswerVote, decreaseAnswerVote, deleteAnswer};
+const modifyAnswer = async (req, res) => {
+    const id = req.params.id;
+    await answer.updateOne({_id: id}, {text: req.body.text});
+    res.status(200).send("Sucess");
+}
+
+const getAnswer = async (req,res) => {
+    const id = req.params.id;
+    let a = await answer.findOne({_id: id});
+    res.status(200).send(a);
+}
+
+module.exports = {getAnswers, postAnswers, increaseAnswerVote, decreaseAnswerVote, deleteAnswer,modifyAnswer, getAnswer};
