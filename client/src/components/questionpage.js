@@ -25,7 +25,7 @@ export default function QuestionPage({ handlePageChange, currQuestionId }) {
       }
     };
     fetchData();
-  }, [currQuestionId]);
+  }, []);
 
   const handleNext = () => {
     setStartIndex(startIndex + 5);
@@ -50,21 +50,47 @@ export default function QuestionPage({ handlePageChange, currQuestionId }) {
     ));
   };
 
-  // TODO: adding comment functionality
-  const renderCommentButton = () => {
+
+  const renderCommentButton = (answerId) => { // type represent if we pressing the button we should post to question(!) or answer(2)
     const handleAddComment = () => {
       // if comment more than 140 characters, show error
       if (comment.length > 140) {
         setErrorMsg("Comment should be 50 characters or less.");
         return;
       }
+      /**
+       * add comment can't distinguish between question and answer
+       */
+      if(!answerId){
+        axios.post(`http://localhost:8000/post/commentToQuestion/${currQuestionId}`,{
+          text: comment
+        },{
+          withCredentials: true
+        }).then(res => {
+          setShowPopup(false);
+          setComment("");
+          setErrorMsg("");
+        }).catch(err => {
+          console.log(err.response.data);
+        })
+      }else if(answerId){
+        axios.post(`http://localhost:8000/post/commentToAnswer/${answerId}`,{
+          text:comment
+        },{
+          withCredentials: true
+        }).then(res => {
+
+          setShowPopup(false);
+          setComment("");
+          setErrorMsg("");
+        }).catch(err => {
+          console.log(err.response.data);
+        })
+      }
       // if rep less than 50, show error -> backend turd get on this
       
       // voting w/ no rep is allowed
       // console.log("Add comment:", comment);
-      setShowPopup(false);
-      setComment("");
-      setErrorMsg("");
     };
   
     return (
@@ -107,7 +133,7 @@ export default function QuestionPage({ handlePageChange, currQuestionId }) {
   };
 
   const handleQuestionUpvote = (e) => {
-    axios.post(`http://localhost:8000/post/increaseQuestionVote/${currQuestionId}`,{},{
+    axios.put(`http://localhost:8000/put/increaseQuestionVote/${currQuestionId}`,{},{
       withCredentials: true
     }).then(response => {
       setQuestion(response.data); // update question to render new upvote amount
@@ -117,7 +143,7 @@ export default function QuestionPage({ handlePageChange, currQuestionId }) {
   }
 
   const handleQuestionDownvote = (e) => {
-    axios.post(`http://localhost:8000/post/decreaseQuestionVote/${currQuestionId}`,{},{
+    axios.put(`http://localhost:8000/put/decreaseQuestionVote/${currQuestionId}`,{},{
       withCredentials: true
     }).then(response => {
       setQuestion(response.data); // update question to render new upvote amount
@@ -127,22 +153,20 @@ export default function QuestionPage({ handlePageChange, currQuestionId }) {
   }
 
   const handleAnswerUpvote = (e) => {
-    axios.post(`http://localhost:8000/post/increaseAnswerVote/${e.target.id}`,{},{
+    axios.put(`http://localhost:8000/put/increaseAnswerVote/${e.target.id}`,{},{
       withCredentials: true
     }).then(response => {
-
-      setAnswers(answers.map(a => a._id === e.target.answerId ? response.data : a)); // replace the old answer to render new vote amonut
+      setAnswers(answers.map(a => a._id === e.target.id ? response.data : a)); // replace the old answer to render new vote amonut
     }).catch(err => {
       console.log(err.response.data)
     })
   }
 
   const handleAnswerDownvote = (e) => {
-    axios.post(`http://localhost:8000/post/decreaseAnswerVote/${e.target.id}`,{},{
+    axios.put(`http://localhost:8000/put/decreaseAnswerVote/${e.target.id}`,{},{
       withCredentials: true
     }).then(response => {
-
-      setAnswers(answers.map(a => a._id === e.target.answerId ? response.data : a)); // replace the old answer to render new vote amonut
+      setAnswers(answers.map(a => a._id === e.target.id ? response.data : a)); // replace the old answer to render new vote amonut
     }).catch(err => {
       console.log(err.response.data)
     })
@@ -154,7 +178,7 @@ export default function QuestionPage({ handlePageChange, currQuestionId }) {
         <div className="flex justify-between items-center">
           <div className="flex items-center space-x-2">
             <div className="text-gray-600">Views: {question.views}</div>
-            <div className="text-gray-600">Posted by: {askedBy}</div>
+            <div className="text-gray-600">posted by: {askedBy}</div>
           </div>
         </div>
         <div className="mt-2">{question.text === undefined ? '' : extractLinks(question.text)}</div>
@@ -169,7 +193,7 @@ export default function QuestionPage({ handlePageChange, currQuestionId }) {
           </div>
           <div className="mt-4">
             <h3 className="text-lg font-semibold mb-2">Comments:</h3>
-            {renderComments(question.comments)}
+            {renderComments(question.comment)}
             {renderCommentButton()}
           </div>
       </div>
@@ -194,8 +218,8 @@ export default function QuestionPage({ handlePageChange, currQuestionId }) {
           </div>
           <div className="mt-4">
             <h3 className="text-lg font-semibold mb-2">Comments:</h3>
-            {renderComments(answer.comments)}
-            {renderCommentButton()}
+            {renderComments(answer.comment)}
+            {renderCommentButton(answer._id)}
           </div>
         </div>
       ))}

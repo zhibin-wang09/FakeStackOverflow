@@ -10,15 +10,20 @@ require('../models/account');
 
 const postQuestion = async (req, res) => { // a post method to handle new questions added to the database
     // req will have a list of tag names
+    const u = await user.findOne({email: req.body.email}); 
     const tags = [];
     for(const t in req.body.tags){
         const tagInDataBase = await tag.find({name: req.body.tags[t]}); // check if the tag already exist
         if(tagInDataBase.length == 0){
-            const newTag = await tag.create({name : req.body.tags[t]});
+            const newTag = await tag.create({name : req.body.tags[t], users: [u]});
             tags.push(newTag);
+        }else{
+            const tagcreators = tagInDataBase.users;
+            tagcreators.append(u);
+            await tag.updateOne({name:body.body.tags[t]}, {tagcreators}); // add a new creator of tag
+            tags.push(tagInDataBase);
         }
     }
-    const u = await user.findOne({email: req.body.email}); 
     const q = await question.create({title : req.body.title, text : req.body.text, tags : tags, asked_by : u});
     res.status(200).send(q);
 }
@@ -159,17 +164,19 @@ const getQuestionById = async (req,res) => {
 // require the request to have a parameter of the id of the data in the database. Client side should have this id that was initially sent when fetching questions
 const increaseQuestionVote = async (req,res) => {
     const id = req.params.id; // use the id to identify the question
-    const q = await question.findOne({_id: id}); // find the question and its associated information
+    let q = await question.findOne({_id: id}); // find the question and its associated information
     await question.updateOne({_id: id}, {votes : q.votes + 1}); // increase the reputation by 1
+    q = await question.findOne({_id: id}); // find the question and its associated information
     res.status(200).send(q)
 }
 
 // require the request to have a parameter of the id of the data in the database. Client side should have this id that was initially sent when fetching questions
 const decreaseQuestionVote = async (req,res) => {
     const id = req.params.id;
-    const q = await question.findOne({_id: id});
+    let q = await question.findOne({_id: id});
     await question.updateOne({_id: id}, {votes: q.votes -1});
-    res.status(200).send()
+    q = await question.findOne({_id: id}); // find the question and its associated information
+    res.status(200).send(q)
 }
 
 /**
@@ -212,7 +219,7 @@ function scanKeyWords(input){
 
 const deleteQuestion = async (req,res) => { // deleting a question will delete all of its associated comment and answers
     const id = req.params.id;
-    const q = await question.findOne({_id: id}).populate('answers').populate('comment'); // populate the fields that we need to delete
+    let q = await question.findOne({_id: id}).populate('answers').populate('comment'); // populate the fields that we need to delete
     for(const j in q["comment"]){ // go through each comment and delete each individual one
         const commentId = q[i]['comment'][j]._id;
         await comment.deleteOne({_id: commentId});
@@ -227,7 +234,8 @@ const deleteQuestion = async (req,res) => { // deleting a question will delete a
         await answer.deleteOne({_id:answerId});
     }
     await question.deleteOne({_id:id}); // lastly delete the question
-    res.status(200).send("Delete success");
+    q = await question.find({}); // the new questions set
+    res.status(200).send(q);
 }
 const modifyQuestion = async (req,res) => { // modifying existing quesition in the databse
     const id = req.params.id;
@@ -242,7 +250,7 @@ const modifyQuestion = async (req,res) => { // modifying existing quesition in t
         }
     }
     await question.updateOne({_id: id}, {text: req.body.text, title: req.body.title, tags: tags});
-    res.status(200).send();
+    res.status(200).send("Success");
 }
 
 module.exports = {postQuestion, getQuestionByKeyword ,getQuestion, updateView, getQuestionById, increaseQuestionVote, decreaseQuestionVote,

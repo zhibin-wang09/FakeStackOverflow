@@ -47,7 +47,7 @@ export default function DisplayContainer(props) {
             displayContent = <AskQuestion backToQuestions={backToQuestions} askQuestion={postQuestion} />;
             break;
         case 'post-answer':
-            displayContent = <PostAnswer currQuestionId={currQuestionId} backToQuestions={backToQuestions} answerQuestion={postAnswer} />;
+            displayContent = <PostAnswer currQuestionId={currQuestionId} backToQuestions={backToQuestions} answerQuestion={postAnswer} handlePageChange ={handlePageChange}/>;
             break;
         case 'detail':
             displayContent = <QuestionPage handlePageChange={handlePageChange} currQuestionId={currQuestionId} />;

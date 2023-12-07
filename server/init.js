@@ -8,6 +8,8 @@ let Answer = require('./models/answers')
 let Question = require('./models/questions')
 let User = require('./models/account')
 let Comment = require('./models/comment')
+const bcrypt = require('bcrypt')
+const saltRound = 10;
 
 let mongoose = require('mongoose');
 let mongoDB = 'mongodb://127.0.0.1:27017/fake_so'; // pre-determine local database
@@ -16,8 +18,8 @@ mongoose.connect(mongoDB, {useNewUrlParser: true, useUnifiedTopology: true});
 let db = mongoose.connection;
 db.on('error', console.error.bind(console, 'MongoDB connection error:'));
 
-function tagCreate(name) {
-  let tag = new Tag({ name: name });
+function tagCreate(name,users) {
+  let tag = new Tag({ name: name, users: users});
   return tag.save();
 }
 
@@ -45,11 +47,13 @@ function questionCreate(title, text, tags, answers, asked_by, ask_date_time, vie
   return qstn.save();
 }
 
-function adminCreate(username, password, email){
+async function adminCreate(username, password, email){
     // assuming this is going to be an admin user
+    const salt = await bcrypt.genSalt(saltRound); // generate the hashing key
+    const hashpass = await bcrypt.hash(password, salt); // hash the password
     userdetail = {
         username: username,
-        password: password,
+        password: hashpass,
         email: email,
         role: 'admin'
     }
@@ -86,10 +90,10 @@ const populate = async () => {
   let u5 = await userCreate('sana', 'r0u3jajfa', 'sana@gmail.com');
   let u6 = await userCreate('Joji John', '34iordsja', 'JojiJohn@gmail.com');
   let u7 = await userCreate('saltyPeter', 'fdlkaj2rja', 'saltyPeter@gmail.com');
-  let t1 = await tagCreate('react');
-  let t2 = await tagCreate('javascript');
-  let t3 = await tagCreate('android-studio');
-  let t4 = await tagCreate('shared-preferences');
+  let t1 = await tagCreate('react', [u1]);
+  let t2 = await tagCreate('javascript', [u6]);
+  let t3 = await tagCreate('android-studio',[u7]);
+  let t4 = await tagCreate('shared-preferences',[u2]);
   let c1 = await commentCreate(u1, "I don't like react");
   let c2 = await commentCreate(u2, "I like react");
   let c3 = await commentCreate(u3, "Maybe I like react");

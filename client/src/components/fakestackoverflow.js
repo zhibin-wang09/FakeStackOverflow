@@ -137,6 +137,9 @@ export default function FakeStackOverFlow() {
 
   function handlePageChange(e) {
     setCurrentQuestion(null);
+    if(e.questionId){
+      setCurrQuestionId(e.questionId);
+    }
     setSortAndPage({
       sortMethod: e.target.id === 'question-page' ? 'newest-btn' : sortAndPage.sortMethod,
       page: e.target.id

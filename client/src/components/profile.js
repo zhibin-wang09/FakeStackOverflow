@@ -6,35 +6,41 @@ export default function ProfilePage(props) {
   const [user, setUser] = useState({});
   const [answers, setAnswers] = useState([]);
   const [questions, setQuestions] = useState([]);
-  const [tags] = useState([]);
+  const [tags,setTags] = useState([]);
+  const [errMsg, setErrMsg] = useState("");
 
   useEffect(() => {
+    setErrMsg("");
     axios.get('http://localhost:8000/profile',{
       withCredentials: true
     })
     .then(response => {
-      console.log(response);
       setUser(response.data.u[0]);
       setQuestions(response.data.q);
       setAnswers(response.data.a);
+      setTags(response.data.t);
     }).catch(err => {
-      console.log(err);
+      setErrMsg(err.response.data);
     })
   },[])
 
   const editQuestion = (questionId) => {
     // change the display container page to edit-question
     // pass in the questionId to the edit-question page
-    props.handlePageChange({target: {id: 'edit-question'}});
-    
-    
-    console.log(`Editing question with ID ${questionId}`);
+    props.handlePageChange({target: {id: 'edit-question'}, questionId: questionId});
   };
 
   
   const deleteQuestion = (questionId) => {
     // do this later
-    console.log(`Deleting question with ID ${questionId}`);
+    axios.post(`http://localhost:8000/post/deleteQuestion/${questionId}`,{},{
+      withCredentials: true
+    })
+    .then(res => {
+      setQuestions(res.data.q);
+    }).catch(err => {
+      console.log(err);
+    })
   };
 
 
@@ -64,6 +70,7 @@ export default function ProfilePage(props) {
     <div className="mx-8 mt-4">
       <div className="flex justify-between items-center">
         <h2 className="text-2xl font-bold">Profile</h2>
+        <strong className="text-rose-600">{errMsg}</strong>
         
       </div>
 
@@ -140,18 +147,18 @@ export default function ProfilePage(props) {
                   href={`/questions/${answeredQuestion.id}`}
                   className="text-blue-500 hover:underline"
                 >
-                  {answeredQuestion.title}
+                  {answeredQuestion.text}
                 </a>
                 {/* Display user's answer */}
                 <button
                   className="ml-2 text-sm text-gray-500"
-                  onClick={() => editAnswer(answeredQuestion.id)} // Fix: Pass answeredQuestion.id instead of answeredQuestion._id
+                  onClick={() => editAnswer(answeredQuestion._id)} // Fix: Pass answeredQuestion.id instead of answeredQuestion._id
                 >
                   Edit Answer
                 </button>
                 <button
                   className="ml-2 text-sm text-red-500"
-                  onClick={() => deleteAnswer(answeredQuestion.id)} // Fix: Pass answeredQuestion.id instead of answeredQuestion._id
+                  onClick={() => deleteAnswer(answeredQuestion._id)} // Fix: Pass answeredQuestion.id instead of answeredQuestion._id
                 >
                   Delete Answer
                 </button>

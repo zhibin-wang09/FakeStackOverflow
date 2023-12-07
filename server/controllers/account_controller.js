@@ -2,7 +2,8 @@ const user = require('../models/account')
 const bcrypt = require('bcrypt')
 const saltRound = 10;
 const question = require('../models/questions')
-const answers = require('../models/answers')
+const answers = require('../models/answers');
+const tags = require('../models/tags');
 
 const signup = async (req, res) => {
     // extract important fields
@@ -33,7 +34,17 @@ const getCurrentUserInfo = async (req,res) => {
     const u = await user.find({email: req.body.email}); // the current user from the client side making the request
     const q = await question.find({asked_by: u}); // find all the question asscoiated with the user
     const a = await answers.find({ans_by: u}); // find all the answers associated with the user
-    res.status(200).send({q,a,u}); 
+    let t = await tags.find({}).populate('users');
+    let tagarr = [];
+    for(let i =0;i < t.length; i++){
+        for(let j = 0; j < t[i].users.length;j ++){
+            if(t[i].users[j].email === u[0].email){
+                tagarr.push(t[i]);
+            }
+        }
+    }
+    t = tagarr
+    res.status(200).send({q,a,u,t}); 
 }
 
 const login = async (req, res) => {
