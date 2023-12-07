@@ -19,7 +19,6 @@ export default function ProfilePage(props) {
       setQuestions(response.data.q);
       setAnswers(response.data.a);
       setTags(response.data.t);
-      console.log(response.data.t)
     }).catch(err => {
       setErrMsg(err.response.data);
     })
@@ -34,7 +33,14 @@ export default function ProfilePage(props) {
   
   const deleteQuestion = (questionId) => {
     // do this later
-    console.log(`Deleting question with ID ${questionId}`);
+    axios.post(`http://localhost:8000/post/deleteQuestion/${questionId}`,{},{
+      withCredentials: true
+    })
+    .then(res => {
+      setQuestions(res.data.q);
+    }).catch(err => {
+      console.log(err);
+    })
   };
 
 

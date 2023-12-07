@@ -219,7 +219,7 @@ function scanKeyWords(input){
 
 const deleteQuestion = async (req,res) => { // deleting a question will delete all of its associated comment and answers
     const id = req.params.id;
-    const q = await question.findOne({_id: id}).populate('answers').populate('comment'); // populate the fields that we need to delete
+    let q = await question.findOne({_id: id}).populate('answers').populate('comment'); // populate the fields that we need to delete
     for(const j in q["comment"]){ // go through each comment and delete each individual one
         const commentId = q[i]['comment'][j]._id;
         await comment.deleteOne({_id: commentId});
@@ -234,7 +234,8 @@ const deleteQuestion = async (req,res) => { // deleting a question will delete a
         await answer.deleteOne({_id:answerId});
     }
     await question.deleteOne({_id:id}); // lastly delete the question
-    res.status(200).send("Delete success");
+    q = await question.find({}); // the new questions set
+    res.status(200).send(q);
 }
 const modifyQuestion = async (req,res) => { // modifying existing quesition in the databse
     const id = req.params.id;
