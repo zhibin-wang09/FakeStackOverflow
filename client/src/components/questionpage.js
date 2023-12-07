@@ -12,6 +12,8 @@ export default function QuestionPage({ handlePageChange, currQuestionId }) {
   const [showPopup, setShowPopup] = useState(false);
   const [comment, setComment] = useState("");
   const [errorMsg, setErrorMsg] = useState("");
+  const [showQuestionPopup, setShowQuestionPopup] = useState(false);
+  const [showAnswerPopup, setShowAnswerPopup] = useState(false);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -62,6 +64,7 @@ export default function QuestionPage({ handlePageChange, currQuestionId }) {
        * add comment can't distinguish between question and answer
        */
       if(!answerId){
+        console.log("question");
         axios.post(`http://localhost:8000/post/commentToQuestion/${currQuestionId}`,{
           text: comment
         },{
@@ -74,6 +77,7 @@ export default function QuestionPage({ handlePageChange, currQuestionId }) {
           console.log(err.response.data);
         })
       }else if(answerId){
+        console.log("answer");
         axios.post(`http://localhost:8000/post/commentToAnswer/${answerId}`,{
           text:comment
         },{
@@ -92,6 +96,10 @@ export default function QuestionPage({ handlePageChange, currQuestionId }) {
       // voting w/ no rep is allowed
       // console.log("Add comment:", comment);
     };
+
+        // Separate handling for question and answer comment popups
+        const showPopup = answerId ? showAnswerPopup : showQuestionPopup;
+        const setShowPopup = answerId ? setShowAnswerPopup : setShowQuestionPopup;
   
     return (
       <div className="relative">
