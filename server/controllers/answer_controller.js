@@ -29,6 +29,9 @@ const increaseAnswerVote = async (req,res) => {
     let a = await answer.findOne({_id: id}); // find the answer and its associated information
     await answer.updateOne({_id: id}, {votes : a.votes + 1}); // increase the reputation by 1
     a = await answer.findOne({_id: id}).populate("ans_by"); // find the answer and its associated information
+    let u = a.ans_by;
+    u = await user.find({_id : u});
+    await user.updateOne({_id: u}, {reputation: u[0].reputation + 5});
     a.ans_by.password = null;
     a.ans_by.email = null;
     res.status(200).send(a)
@@ -40,6 +43,9 @@ const decreaseAnswerVote = async (req,res) => {
     let a = await answer.findOne({_id: id});
     await answer.updateOne({_id: id}, {votes: a.votes - 1});
     a = await answer.findOne({_id: id}).populate("ans_by");
+    let u = a.ans_by;
+    u = await user.find({_id : u});
+    await user.updateOne({_id: u}, {reputation: u[0].reputation - 10});
     a.ans_by.password = null;
     a.ans_by.email = null;
     res.status(200).send(a)

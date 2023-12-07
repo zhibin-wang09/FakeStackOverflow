@@ -167,6 +167,10 @@ const increaseQuestionVote = async (req,res) => {
     let q = await question.findOne({_id: id}); // find the question and its associated information
     await question.updateOne({_id: id}, {votes : q.votes + 1}); // increase the reputation by 1
     q = await question.findOne({_id: id}); // find the question and its associated information
+    //update the user's reputation
+    let u = q.asked_by;
+    u = await user.find({_id : u});
+    await user.updateOne({_id: u}, {reputation: u[0].reputation + 5});
     res.status(200).send(q)
 }
 
@@ -176,6 +180,10 @@ const decreaseQuestionVote = async (req,res) => {
     let q = await question.findOne({_id: id});
     await question.updateOne({_id: id}, {votes: q.votes -1});
     q = await question.findOne({_id: id}); // find the question and its associated information
+    //update the user's reputation
+    let u = q.asked_by;
+    u = await user.find({_id : u});
+    await user.updateOne({_id: u}, {reputation: u[0].reputation - 10});
     res.status(200).send(q)
 }
 
