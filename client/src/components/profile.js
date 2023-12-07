@@ -7,18 +7,19 @@ export default function ProfilePage(props) {
   const [answers, setAnswers] = useState([]);
   const [questions, setQuestions] = useState([]);
   const [tags] = useState([]);
+  const [errMsg, setErrMsg] = useState("");
 
   useEffect(() => {
+    setErrMsg("");
     axios.get('http://localhost:8000/profile',{
       withCredentials: true
     })
     .then(response => {
-      console.log(response);
       setUser(response.data.u[0]);
       setQuestions(response.data.q);
       setAnswers(response.data.a);
     }).catch(err => {
-      console.log(err);
+      setErrMsg(err.response.data);
     })
   },[])
 
@@ -64,6 +65,7 @@ export default function ProfilePage(props) {
     <div className="mx-8 mt-4">
       <div className="flex justify-between items-center">
         <h2 className="text-2xl font-bold">Profile</h2>
+        <strong className="text-rose-600">{errMsg}</strong>
         
       </div>
 
