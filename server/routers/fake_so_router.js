@@ -33,8 +33,8 @@ router.route('/post/commentToQuestion/:id').post(verify,postCommentToQuestion);
 router.route('/post/commentToAnswer/:id').post(verify,postCommentToAnswer);
 router.route('/post/increaseCommentVote/:id').post(increaseCommentVote);
 router.route('/post/decreaseCommentVote/:id').post(decreaseCommentVote);
-router.route('/post/deleteQuestion/:id').post(deleteQuestion);
-router.route('/post/deleteAnswer/:id').post(deleteAnswer);
+router.route('/post/deleteQuestion/:id').post(verify,deleteQuestion);
+router.route('/post/deleteAnswer/:id').post(verify,deleteAnswer);
 router.route('/put/modifyQuestion/:id').put(verify,modifyQuestion);
 router.route('/put/modifyAnswer/:id').put(verify,modifyAnswer);
 

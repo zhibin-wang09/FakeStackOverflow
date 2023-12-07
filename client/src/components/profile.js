@@ -40,6 +40,7 @@ export default function ProfilePage(props) {
     })
     .then(res => {
       setQuestions(res.data.q);
+      setAnswers(res.data.a);
     }).catch(err => {
       console.log(err);
     })

@@ -233,17 +233,19 @@ const deleteQuestion = async (req,res) => { // deleting a question will delete a
         await comment.deleteOne({_id: commentId});
     }
     
-    for(const j in q["answers"]["comment"]){ // go through each individual comment in the answers and delete the comments then the answer
+    for(const i in q["answers"]){ // go through each individual comment in the answers and delete the comments then the answer
         for(const j in q['answers']["comment"]){
-            const commentId = q['answers']['comment']._id;
+            const commentId = q['answers'][i]['comment'][j]._id;
             await comment.deleteOne({_id: commentId});
         }
-        const answerId = q[i]['answers'][j]._id;
+        const answerId = q['answers'][i]._id;
         await answer.deleteOne({_id:answerId});
     }
     await question.deleteOne({_id:id}); // lastly delete the question
-    q = await question.find({}); // the new questions set
-    res.status(200).send(q);
+    let u = await user.findOne({_id: req.body.id});
+    q = await question.find({asked_by: u }); // the new questions set for the user
+    a = await answer.find({ans_by: u}); // the new answer set for the user
+    res.status(200).send({q,a});
 }
 const modifyQuestion = async (req,res) => { // modifying existing quesition in the databse
     const id = req.params.id;
