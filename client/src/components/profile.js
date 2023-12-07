@@ -41,6 +41,7 @@ export default function ProfilePage(props) {
     .then(res => {
       setQuestions(res.data.q);
       setAnswers(res.data.a);
+      setTags(res.data.t);
     }).catch(err => {
       console.log(err);
     })
