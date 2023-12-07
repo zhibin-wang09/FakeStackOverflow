@@ -18,10 +18,8 @@ const postQuestion = async (req, res) => { // a post method to handle new questi
             const newTag = await tag.create({name : req.body.tags[t], users: [u]});
             tags.push(newTag);
         }else{
-            const tagcreators = tagInDataBase.users;
-            tagcreators.append(u);
-            await tag.updateOne({name:body.body.tags[t]}, {tagcreators}); // add a new creator of tag
-            tags.push(tagInDataBase);
+            await tag.updateOne({name: req.body.tags[t]}, {users: [...tagInDataBase[0].users, u]}); // add a new creator of tag
+            tags.push(tagInDataBase[0]);
         }
     }
     const q = await question.create({title : req.body.title, text : req.body.text, tags : tags, asked_by : u});
@@ -165,16 +163,8 @@ const getQuestionById = async (req,res) => {
 const increaseQuestionVote = async (req,res) => {
     const id = req.params.id; // use the id to identify the question
     let q = await question.findOne({_id: id}); // find the question and its associated information
-    let u = q.asked_by;
-    u = await user.find({_id : u});
-    if(u[0].reputation < 50){
-        res.status(400).send("You can not vote yet. Reputation is less than 50. Please get more votes from other people.")
-        return;
-    }
     await question.updateOne({_id: id}, {votes : q.votes + 1}); // increase the reputation by 1
     q = await question.findOne({_id: id}); // find the question and its associated information
-    //update the user's reputation
-    await user.updateOne({_id: u}, {reputation: u[0].reputation + 5});
     res.status(200).send(q)
 }
 
@@ -182,16 +172,8 @@ const increaseQuestionVote = async (req,res) => {
 const decreaseQuestionVote = async (req,res) => {
     const id = req.params.id;
     let q = await question.findOne({_id: id});
-    let u = q.asked_by;
-    u = await user.find({_id : u});
-    if(u[0].reputation < 50){
-        res.status(400).send("You can not vote yet. Reputation is less than 50. Please get more votes from other people.")
-        return;
-    }
     await question.updateOne({_id: id}, {votes: q.votes -1});
     q = await question.findOne({_id: id}); // find the question and its associated information
-    //update the user's reputation
-    await user.updateOne({_id: u}, {reputation: u[0].reputation - 10});
     res.status(200).send(q)
 }
 
