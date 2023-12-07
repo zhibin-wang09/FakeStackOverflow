@@ -8,6 +8,8 @@ let Answer = require('./models/answers')
 let Question = require('./models/questions')
 let User = require('./models/account')
 let Comment = require('./models/comment')
+const bcrypt = require('bcrypt')
+const saltRound = 10;
 
 let mongoose = require('mongoose');
 let mongoDB = 'mongodb://127.0.0.1:27017/fake_so'; // pre-determine local database
@@ -45,11 +47,13 @@ function questionCreate(title, text, tags, answers, asked_by, ask_date_time, vie
   return qstn.save();
 }
 
-function adminCreate(username, password, email){
+async function adminCreate(username, password, email){
     // assuming this is going to be an admin user
+    const salt = await bcrypt.genSalt(saltRound); // generate the hashing key
+    const hashpass = await bcrypt.hash(password, salt); // hash the password
     userdetail = {
         username: username,
-        password: password,
+        password: hashpass,
         email: email,
         role: 'admin'
     }

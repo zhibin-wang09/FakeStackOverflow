@@ -244,7 +244,7 @@ const modifyQuestion = async (req,res) => { // modifying existing quesition in t
         }
     }
     await question.updateOne({_id: id}, {text: req.body.text, title: req.body.title, tags: tags});
-    res.status(200).send();
+    res.status(200).send("Success");
 }
 
 module.exports = {postQuestion, getQuestionByKeyword ,getQuestion, updateView, getQuestionById, increaseQuestionVote, decreaseQuestionVote,

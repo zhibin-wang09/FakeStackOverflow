@@ -26,10 +26,7 @@ export default function ProfilePage(props) {
   const editQuestion = (questionId) => {
     // change the display container page to edit-question
     // pass in the questionId to the edit-question page
-    props.handlePageChange({target: {id: 'edit-question'}});
-    
-    
-    console.log(`Editing question with ID ${questionId}`);
+    props.handlePageChange({target: {id: 'edit-question'}, questionId: questionId});
   };
 
   

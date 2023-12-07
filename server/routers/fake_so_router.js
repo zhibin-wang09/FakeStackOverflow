@@ -34,6 +34,6 @@ router.route('/post/increaseCommentVote/:id').post(increaseCommentVote);
 router.route('/post/decreaseCommentVote/:id').post(decreaseCommentVote);
 router.route('/post/deleteQuestion/:id').post(deleteQuestion);
 router.route('/post/deleteAnswer/:id').post(deleteAnswer);
-router.route('/put/modifyQuestion/:id').put(modifyQuestion);
+router.route('/put/modifyQuestion/:id').put(verify,modifyQuestion);
 
 module.exports = router;

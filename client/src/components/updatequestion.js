@@ -4,15 +4,12 @@ import ShortInput from './short_input';
 import TextArea from './textarea';
 import extractLinks from '../processInput';
 
-export default function UpdateQuestion( questionId) {
+export default function UpdateQuestion( {questionId, handlePageChange}) {
     const [question, setQuestion] = useState({});
     const [title, setTitle] = useState('');
     const [questionText, setQuestionText] = useState('');
 
-    //const [title, setTitle] = useState("");
-    //const [questionText, setQuestionText] = useState("");
     const [tags, setTags] = useState("");
-    const [username, setUsername] = useState("");
     const [submitted, setSubmitted] = useState(false);
     const [isTitleMoreThan100Char, setIsTitleMoreThan100char] = useState(false);
     const [isMoreThan5Tags, setIsMoreThan5Tags] = useState(false);
@@ -20,12 +17,18 @@ export default function UpdateQuestion( questionId) {
     const [isInvalidHyperlink, setIsInvAlidHyperLink] = useState(false);
 
     useEffect(() => {
+        console.log(questionId);
         axios.get(`http://localhost:8000/get/questions/${questionId}`)
             .then((response) => {
-                const { title, text } = response.data;
+                const { title, text,tags } = response.data;
                 setTitle(title);
                 setQuestionText(text);
-                setTags(tags);
+                let tagsString = ""; // convert tag array into string
+                for(const i in tags){
+                    tagsString = tagsString.concat(tags[i].name + " "); // append the names to the string
+                }
+                if(tagsString.length != 0) tagsString.slice(0,tagsString.length -1); // remove the last space
+                setTags(tagsString); // set the tag
             })
             .catch((error) => {
                 console.error('Error fetching question:', error);
@@ -39,7 +42,6 @@ export default function UpdateQuestion( questionId) {
         let tagsarr = tags.toLowerCase().trim().split(" ");
         let titlet = title.trim();
         let text = questionText.trim();
-        let usernamet = username.trim();
 
         // Validation checks
         let isTitleValid = titlet.length <= 100;
@@ -55,8 +57,19 @@ export default function UpdateQuestion( questionId) {
             return;
         }
 
-        if (titlet && text && tagsarr.length && usernamet) {
-            // update question to backend here !!!!!!!!!!!!
+        if (titlet && text && tagsarr.length) {
+            axios.put(`http://localhost:8000/put/modifyQuestion/${questionId}`,{
+                text: text,
+                title: titlet,
+                tags, tagsarr
+            },{
+                withCredentials: true
+            }).then(response => {
+                console.log(response);
+                handlePageChange({target: {id: 'profile-page'}});
+            }).catch(err => {
+                console.log(err);
+            })
         }
     };
 
