@@ -18,8 +18,8 @@ mongoose.connect(mongoDB, {useNewUrlParser: true, useUnifiedTopology: true});
 let db = mongoose.connection;
 db.on('error', console.error.bind(console, 'MongoDB connection error:'));
 
-function tagCreate(name) {
-  let tag = new Tag({ name: name });
+function tagCreate(name,users) {
+  let tag = new Tag({ name: name, users: users});
   return tag.save();
 }
 
@@ -90,10 +90,10 @@ const populate = async () => {
   let u5 = await userCreate('sana', 'r0u3jajfa', 'sana@gmail.com');
   let u6 = await userCreate('Joji John', '34iordsja', 'JojiJohn@gmail.com');
   let u7 = await userCreate('saltyPeter', 'fdlkaj2rja', 'saltyPeter@gmail.com');
-  let t1 = await tagCreate('react');
-  let t2 = await tagCreate('javascript');
-  let t3 = await tagCreate('android-studio');
-  let t4 = await tagCreate('shared-preferences');
+  let t1 = await tagCreate('react', [u1]);
+  let t2 = await tagCreate('javascript', [u6]);
+  let t3 = await tagCreate('android-studio',[u7]);
+  let t4 = await tagCreate('shared-preferences',[u2]);
   let c1 = await commentCreate(u1, "I don't like react");
   let c2 = await commentCreate(u2, "I like react");
   let c3 = await commentCreate(u3, "Maybe I like react");

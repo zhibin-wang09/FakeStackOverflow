@@ -10,15 +10,20 @@ require('../models/account');
 
 const postQuestion = async (req, res) => { // a post method to handle new questions added to the database
     // req will have a list of tag names
+    const u = await user.findOne({email: req.body.email}); 
     const tags = [];
     for(const t in req.body.tags){
         const tagInDataBase = await tag.find({name: req.body.tags[t]}); // check if the tag already exist
         if(tagInDataBase.length == 0){
-            const newTag = await tag.create({name : req.body.tags[t]});
+            const newTag = await tag.create({name : req.body.tags[t], users: [u]});
             tags.push(newTag);
+        }else{
+            const tagcreators = tagInDataBase.users;
+            tagcreators.append(u);
+            await tag.updateOne({name:body.body.tags[t]}, {tagcreators}); // add a new creator of tag
+            tags.push(tagInDataBase);
         }
     }
-    const u = await user.findOne({email: req.body.email}); 
     const q = await question.create({title : req.body.title, text : req.body.text, tags : tags, asked_by : u});
     res.status(200).send(q);
 }

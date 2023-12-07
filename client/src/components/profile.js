@@ -6,7 +6,7 @@ export default function ProfilePage(props) {
   const [user, setUser] = useState({});
   const [answers, setAnswers] = useState([]);
   const [questions, setQuestions] = useState([]);
-  const [tags] = useState([]);
+  const [tags,setTags] = useState([]);
   const [errMsg, setErrMsg] = useState("");
 
   useEffect(() => {
@@ -18,6 +18,8 @@ export default function ProfilePage(props) {
       setUser(response.data.u[0]);
       setQuestions(response.data.q);
       setAnswers(response.data.a);
+      setTags(response.data.t);
+      console.log(response.data.t)
     }).catch(err => {
       setErrMsg(err.response.data);
     })
@@ -139,18 +141,18 @@ export default function ProfilePage(props) {
                   href={`/questions/${answeredQuestion.id}`}
                   className="text-blue-500 hover:underline"
                 >
-                  {answeredQuestion.title}
+                  {answeredQuestion.text}
                 </a>
                 {/* Display user's answer */}
                 <button
                   className="ml-2 text-sm text-gray-500"
-                  onClick={() => editAnswer(answeredQuestion.id)} // Fix: Pass answeredQuestion.id instead of answeredQuestion._id
+                  onClick={() => editAnswer(answeredQuestion._id)} // Fix: Pass answeredQuestion.id instead of answeredQuestion._id
                 >
                   Edit Answer
                 </button>
                 <button
                   className="ml-2 text-sm text-red-500"
-                  onClick={() => deleteAnswer(answeredQuestion.id)} // Fix: Pass answeredQuestion.id instead of answeredQuestion._id
+                  onClick={() => deleteAnswer(answeredQuestion._id)} // Fix: Pass answeredQuestion.id instead of answeredQuestion._id
                 >
                   Delete Answer
                 </button>
