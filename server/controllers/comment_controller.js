@@ -7,7 +7,7 @@ const postCommentToQuestion = async (req,res) => { // a post method to create a 
     const q = await question.findOne({_id: req.params.id}); // get the corresponding question to add comment to
     const u = await user.findOne({email : req.body.email}); // get the user who is making the comment
     const c = await comment.create({text: req.body.text, user: u}); // create the new comment
-    await question.updateOne({_id : req.params.id}, {comment : [...q[0].comment, c]}); // add the comment to the question
+    await question.updateOne({_id : req.params.id}, {comment : [...q.comment, c]}); // add the comment to the question
     res.status(200).send(c);
 }
 
@@ -15,7 +15,7 @@ const postCommentToAnswer = async (req,res) => { // a post method to create a ne
     const a = await answer.findOne({_id: req.params.id}); // get the corresponding answer to add comment to
     const u = await user.findOne({email : req.body.email}); // get the user who is making the comment
     const c = await comment.create({text: req.body.text, user: u}); // create the new comment
-    await answer.updateOne({_id : req.params.id}, {comment : [...a[0].comment, c]}); // add the comment to the question
+    await answer.updateOne({_id : req.params.id}, {comment : [...a.comment, c]}); // add the comment to the question
     res.status(200).send(c);
 }
 

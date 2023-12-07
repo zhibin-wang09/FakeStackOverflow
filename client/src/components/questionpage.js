@@ -50,21 +50,47 @@ export default function QuestionPage({ handlePageChange, currQuestionId }) {
     ));
   };
 
-  // TODO: adding comment functionality
-  const renderCommentButton = () => {
+
+  const renderCommentButton = (answerId) => { // type represent if we pressing the button we should post to question(!) or answer(2)
     const handleAddComment = () => {
       // if comment more than 140 characters, show error
       if (comment.length > 140) {
         setErrorMsg("Comment should be 50 characters or less.");
         return;
       }
+      /**
+       * add comment can't distinguish between question and answer
+       */
+      if(!answerId){
+        axios.post(`http://localhost:8000/post/commentToQuestion/${currQuestionId}`,{
+          text: comment
+        },{
+          withCredentials: true
+        }).then(res => {
+          setShowPopup(false);
+          setComment("");
+          setErrorMsg("");
+        }).catch(err => {
+          console.log(err.response.data);
+        })
+      }else if(answerId){
+        axios.post(`http://localhost:8000/post/commentToAnswer/${answerId}`,{
+          text:comment
+        },{
+          withCredentials: true
+        }).then(res => {
+
+          setShowPopup(false);
+          setComment("");
+          setErrorMsg("");
+        }).catch(err => {
+          console.log(err.response.data);
+        })
+      }
       // if rep less than 50, show error -> backend turd get on this
       
       // voting w/ no rep is allowed
       // console.log("Add comment:", comment);
-      setShowPopup(false);
-      setComment("");
-      setErrorMsg("");
     };
   
     return (
@@ -111,7 +137,6 @@ export default function QuestionPage({ handlePageChange, currQuestionId }) {
       withCredentials: true
     }).then(response => {
       setQuestion(response.data); // update question to render new upvote amount
-      console.log(response.data)
     }).catch(err => {
       console.log(err.response.data)
     })
@@ -168,7 +193,7 @@ export default function QuestionPage({ handlePageChange, currQuestionId }) {
           </div>
           <div className="mt-4">
             <h3 className="text-lg font-semibold mb-2">Comments:</h3>
-            {renderComments(question.comments)}
+            {renderComments(question.comment)}
             {renderCommentButton()}
           </div>
       </div>
@@ -193,8 +218,8 @@ export default function QuestionPage({ handlePageChange, currQuestionId }) {
           </div>
           <div className="mt-4">
             <h3 className="text-lg font-semibold mb-2">Comments:</h3>
-            {renderComments(answer.comments)}
-            {renderCommentButton()}
+            {renderComments(answer.comment)}
+            {renderCommentButton(answer._id)}
           </div>
         </div>
       ))}
