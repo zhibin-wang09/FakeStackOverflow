@@ -65,8 +65,14 @@ export default function ProfilePage(props) {
 
 
   const deleteAnswer = (answerId) => {
-    // do later
-    console.log(`Deleting answer with ID ${answerId}`);
+    axios.post(`http://localhost:8000/post/deleteAnswer/${answerId}`,{},{
+      withCredentials: true
+    })
+    .then(res => {
+      setAnswers(res.data);
+    }).catch(err => {
+      console.log(err);
+    })
   };
 
   const renderAdminInfo = () => {
