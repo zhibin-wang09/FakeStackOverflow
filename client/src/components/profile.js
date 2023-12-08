@@ -9,6 +9,7 @@ export default function ProfilePage(props) {
   const [tags,setTags] = useState([]);
   const [errMsg, setErrMsg] = useState("");
   const [isAdmin, setIsAdmin] = useState(false);
+  const [users, setUsers] = useState([]);
 
   useEffect(() => {
     setErrMsg("");
@@ -20,11 +21,26 @@ export default function ProfilePage(props) {
       setQuestions(response.data.q);
       setAnswers(response.data.a);
       setTags(response.data.t);
-      setIsAdmin(response.data.u[0].role === 'normal' ? false : true); // sets if the user is admin or not
+      setIsAdmin(response.data.u[0].role === 'user' ? false : true); // sets if the user is admin or not
     }).catch(err => {
       setErrMsg(err.response.data);
     })
   },[])
+
+  useEffect(() => {
+    if(!isAdmin){
+      return;
+    }
+    setErrMsg("");
+    axios.get('http://localhost:8000/admin/profile',{
+      withCredentials: true
+    }).then(res => {
+      console.log(res.data)
+      setUsers(res.data);
+    }).catch(err => {
+      console.log("error" ,err)
+    })
+  },[isAdmin])
 
   const editQuestion = (questionId) => {
     // change the display container page to edit-question
@@ -78,11 +94,45 @@ export default function ProfilePage(props) {
   const renderAdminInfo = () => {
     return (
       <div className="mx-8 mt-4"> 
+        <div className="flex justify-between items-center">
+        <h2 className="text-2xl font-bold">Admin Profile</h2>
+        <strong className="text-rose-600">{errMsg}</strong>
+        </div>
 
+        <div className="bg-gray-100 p-4 mt-4 rounded-md shadow-md">
+          <div className="flex items-center space-x-4 mb-4">
+            <div>
+              <p className="text-xl font-bold">{user.username}</p>
+              <p>Member since: {user.memberSince}</p>
+              <p>Reputation: {user.reputation}</p>
+            </div>
+          </div>
+
+          <div>
+            <h3 className="text-lg font-bold mb-2">Users</h3>
+            <ul>
+              {
+                users.map(u => {
+                  return (<li id ={u._id} key={u._id} className="mb-2">
+                      <a>
+                        {u.email}
+                      </a>
+                      <button className="ml-2 text-sm text-red-500">
+                        Delete
+                      </button>
+                  </li>)
+                })
+              }
+            </ul>
+          </div>
+        </div>
       </div>
     )
   }
 
+  if(isAdmin){
+    return renderAdminInfo();
+  }
   return (
     <div className="mx-8 mt-4">
       <div className="flex justify-between items-center">

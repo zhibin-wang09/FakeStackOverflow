@@ -86,6 +86,17 @@ const verify = async (req,res,next) => {
     }
 }
 
+const getAllUser = async (req,res) => {
+    const email = req.session.email;
+    const admin = await user.findOne({email: email});
+    if(admin.role === 'normal'){
+        res.status(401).send("You are not admin. Can not get user information");
+        return;
+    }
+    const u = await user.find({email: {$ne : email}});
+    res.status(200).send(u);
+}
+
 const increaseReputation = async (req,res) => {
     const email = req.body.email; // use the email to identify the question
     const q = await user.findOne({email: email}); // find the question and its associated information
@@ -106,4 +117,4 @@ const getUser = async (req,res) => {
     res.status(200).send(user);
 }
 
-module.exports = {signup, login, logout, verify, increaseReputation, decreaseReputation,getUser, getSession,getCurrentUserInfo}
+module.exports = {signup, login, logout, verify, increaseReputation, decreaseReputation,getUser, getSession,getCurrentUserInfo,getAllUser}
