@@ -45,7 +45,24 @@ const getCurrentUserInfo = async (req,res) => {
         }
     }
     t = tagarr
-    res.status(200).send({q,a,u,t}); 
+    const qAnswered = [];
+    const allQ = await question.find({}).populate({
+        path: 'answers',
+        populate: {
+            path: 'ans_by',
+            model: 'User'
+        }
+    });
+    for(const i in allQ){
+        for(const j in allQ[i]['answers']){
+            if(allQ[i]['answers'][j].ans_by._id.toString() === u[0]._id.toString()){
+                allQ[i]['answers'][j].ans_by.password = null;
+                allQ[i]['answers'][j].ans_by.email = null;
+                qAnswered.push(allQ[i]);
+            }
+        }
+    }
+    res.status(200).send({q,a,u,t,qAnswered}); 
 }
 
 const login = async (req, res) => {
