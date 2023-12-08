@@ -61,8 +61,7 @@ export default function QuestionPage({ handlePageChange, currQuestionId, userId}
 
     return comments.map((comment) => (
       <div key={comment._id} className="ml-8 mt-2 text-gray-600">
-        {comment.text}
-        <div className="text-gray-500 mt-1">Votes: {comment.votes}</div>
+        <strong className="text-gray-500 mt-1">Votes: {comment.votes} -</strong> {comment.text}
       </div>
     ));
   };
@@ -89,7 +88,7 @@ export default function QuestionPage({ handlePageChange, currQuestionId, userId}
           setComment("");
           setErrorMsg("");
         }).catch(err => {
-          console.log(err.response.data);
+          alert(err.response.data);
         })
       }else if(answerId){
         console.log("answer");
@@ -103,7 +102,7 @@ export default function QuestionPage({ handlePageChange, currQuestionId, userId}
           setComment("");
           setErrorMsg("");
         }).catch(err => {
-          console.log(err.response.data);
+          alert(err.response.data);
         })
       }
 
