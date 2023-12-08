@@ -21,7 +21,7 @@ export default function ProfilePage(props) {
       setQuestions(response.data.q);
       setAnswers(response.data.a);
       setTags(response.data.t);
-      setIsAdmin(response.data.u[0].role === 'user' ? false : true); // sets if the user is admin or not
+      setIsAdmin(response.data.u[0].role === 'normal' ? false : true); // sets if the user is admin or not
     }).catch(err => {
       setErrMsg(err.response.data);
     })
@@ -35,7 +35,6 @@ export default function ProfilePage(props) {
     axios.get('http://localhost:8000/admin/profile',{
       withCredentials: true
     }).then(res => {
-      console.log(res.data)
       setUsers(res.data);
     }).catch(err => {
       console.log("error" ,err)
@@ -91,6 +90,16 @@ export default function ProfilePage(props) {
     })
   };
 
+  const deleteUser = (userId) => {
+    axios.post(`http://localhost:8000/post/deleteUser/${userId}`, {},{
+      withCredentials: true
+    }).then(res => {
+      setUsers(res.data);
+    }).catch(err => {
+      console.log(err);
+    })
+  }
+
   const renderAdminInfo = () => {
     return (
       <div className="mx-8 mt-4"> 
@@ -110,14 +119,14 @@ export default function ProfilePage(props) {
 
           <div>
             <h3 className="text-lg font-bold mb-2">Users</h3>
+            <h5 className="text-lg font-bold mb-2">Total users: {users.length}</h5>
             <ul>
-              {
-                users.map(u => {
+              {users.map(u => {
                   return (<li id ={u._id} key={u._id} className="mb-2">
                       <a>
                         {u.email}
                       </a>
-                      <button className="ml-2 text-sm text-red-500">
+                      <button className="ml-2 text-sm text-red-500" onClick={() => deleteUser(u._id)}>
                         Delete
                       </button>
                   </li>)
@@ -161,13 +170,13 @@ export default function ProfilePage(props) {
                 >
                   {question.title}
                 </a>
-                <button id = {question._id}
+                <button
                   className="ml-2 text-sm text-gray-500"
                   onClick={() => editQuestion(question._id)}
                 >
                   Edit
                 </button>
-                <button id = {question._id}
+                <button
                   className="ml-2 text-sm text-red-500"
                   onClick={() => deleteQuestion(question._id)}
                 >

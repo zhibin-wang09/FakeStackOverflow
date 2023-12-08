@@ -4,6 +4,7 @@ const saltRound = 10;
 const question = require('../models/questions')
 const answers = require('../models/answers');
 const tags = require('../models/tags');
+const comment = require('../models/comment');
 
 const signup = async (req, res) => {
     // extract important fields
@@ -117,4 +118,55 @@ const getUser = async (req,res) => {
     res.status(200).send(user);
 }
 
-module.exports = {signup, login, logout, verify, increaseReputation, decreaseReputation,getUser, getSession,getCurrentUserInfo,getAllUser}
+const deleteUsers = async (req,res) => {
+    const email = req.body.email;
+    let admin = await user.findOne({email: email});
+    if(admin.role !== 'admin'){ // check if current user is admin
+        return res.status(401).send("You can not delete user if you are not admin");
+    }
+    let du = await user.findOne({_id: req.params.id}); // find the user we wish to delete
+    // need to delete all associating questions, answers, comments etc...
+
+    // delete user question
+    const q = await question.find({asked_by: du});
+    for(const k in q){
+        for(const i in q[k]["answers"]){ // go through each individual comment in the answers and delete the comments then the answer
+            for(const j in q[k]['answers']["comment"]){
+                const commentId = q[k]['answers'][i]['comment'][j]._id;
+                await comment.deleteOne({_id: commentId});
+            }
+            const answerId = q[k]['answers'][i]._id;
+            await answers.deleteOne({_id:answerId});
+        }
+
+        await question.deleteOne({_id:q[k]._id}); // lastly delete the question
+    }
+
+    // delete an answer asked by this user.
+    let a = await answers.find({ans_by: du}).populate('comment');
+    for(const k in a){
+        for(const i in a[k]["comment"]){ // go through the comments and delete each one
+            await comment.deleteOne({_id : a[k]['comment'][i]._id});
+        }
+        await answers.deleteOne({_id : a[k]._id});
+    }
+
+
+    // delete an tag added by this user
+    t = await tags.find({});
+    for(const i in t){
+        for(const j in t[i].users){
+            if(t[i].users[j]._id.toString() === du._id){
+                await tags.updateOne({_id: t[i]._id}, {users: t[i].users.filter(uu => uu._id.toString() !== du._id)});
+            }
+        }
+    }
+
+    // delete comment added by this user
+    await comment.deleteMany({posted_by: du});
+    await user.deleteOne({email : du.email});
+    u = await user.find({});
+    return res.status(200).send(u);
+}
+
+module.exports = {signup, login, logout, verify, increaseReputation, decreaseReputation,getUser, getSession,getCurrentUserInfo,getAllUser,deleteUsers}

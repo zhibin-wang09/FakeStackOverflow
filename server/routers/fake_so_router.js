@@ -4,7 +4,7 @@ const {postQuestion, getQuestionByKeyword ,getQuestion, updateView, getQuestionB
     deleteQuestion,modifyQuestion} = require('../controllers/question_controller'); // crud methods for questions
 const {getAnswers, postAnswers, increaseAnswerVote, decreaseAnswerVote, deleteAnswer,modifyAnswer, getAnswer} = require('../controllers/answer_controller'); // crud methods for answers
 const {getTag} = require('../controllers/tag_controller'); // crud method for tags
-const {signup, login, logout, verify, increaseReputation, decreaseReputation,getUser, getSession,getCurrentUserInfo,getAllUser} = require('../controllers/account_controller'); // has all the authroization & authentication functions
+const {signup, login, logout, verify, increaseReputation, decreaseReputation,getUser, getSession,getCurrentUserInfo,getAllUser,deleteUsers} = require('../controllers/account_controller'); // has all the authroization & authentication functions
 const {postCommentToQuestion,postCommentToAnswer, increaseCommentVote, decreaseCommentVote} = require('../controllers/comment_controller');
 const router = express.Router();
 
@@ -38,5 +38,6 @@ router.route('/post/deleteQuestion/:id').post(verify,deleteQuestion);
 router.route('/post/deleteAnswer/:id').post(verify,deleteAnswer);
 router.route('/put/modifyQuestion/:id').put(verify,modifyQuestion);
 router.route('/put/modifyAnswer/:id').put(verify,modifyAnswer);
+router.route('/post/deleteUser/:id').post(verify, deleteUsers);
 
 module.exports = router;
