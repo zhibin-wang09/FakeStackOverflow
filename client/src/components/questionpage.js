@@ -42,7 +42,7 @@ export default function QuestionPage({ handlePageChange, currQuestionId, userId}
       }
     };
     fetchData();
-  }, [currQuestionId]);
+  }, [currQuestionId,userId]);
 
   const handleNext = () => {
     setStartIndex(startIndex + 5);
@@ -200,6 +200,19 @@ export default function QuestionPage({ handlePageChange, currQuestionId, userId}
     handlePageChange({target: {id: "edit-answer"}, questionId: answerId});
   }
 
+  const deleteAnswer = (answerId) => {
+    axios.post(`http://localhost:8000/post/deleteAnswer/${answerId}`,{
+      questionId : currQuestionId
+    },{
+      withCredentials: true
+    })
+    .then(res => {
+      setAnswers(answers.filter(a => a._id.toString() !== answerId));
+    }).catch(err => {
+      console.log(err);
+    })
+  };
+
   return (
     <div>
       <strong>{errMsg}</strong>
@@ -243,8 +256,11 @@ export default function QuestionPage({ handlePageChange, currQuestionId, userId}
             <button className="text-red-500 mr-4" onClick={handleAnswerDownvote} id = {answer._id}>
               Downvote
             </button>
-            {(userId !== "" && userId === answer.ans_by._id.toString()) ? <button onClick={() => editAnswer(answer._id)}>
+            {(userId !== "" && userId === answer.ans_by._id.toString()) ? <button className="text-red-500 mr-4" onClick={() => editAnswer(answer._id)}>
               Edit
+            </button> : ""}
+            {(userId !== "" && userId === answer.ans_by._id.toString()) ? <button className="text-red-500" onClick={() => deleteAnswer(answer._id)}>
+              Delete
             </button> : ""}
             <div className="text-gray-500 mt-1">Votes: {answer.votes}</div>
           </div>

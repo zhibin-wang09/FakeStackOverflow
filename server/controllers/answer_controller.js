@@ -66,8 +66,8 @@ const deleteAnswer = async (req,res) => { // deleting an answer will delete all 
     }
     await answers.deleteOne({_id : id});
     const u = await user.findOne({email: req.body.email});
-    a = await answer.find({ans_by: u});
-    res.status(200).send(a);
+    let q = await question.find({_id : req.body.questionId});
+    res.status(200).send("Sucess");
 }
 
 const modifyAnswer = async (req, res) => {
