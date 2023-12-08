@@ -11,7 +11,7 @@ import UpdateQuestion from './updatequestion.js';
 import UpdateAnswer from './updateAnswer.js';
 
 export default function DisplayContainer(props) {
-    const { page, data, onQuestionClick, postQuestion, backToQuestionsFromTags, backToQuestions, postAnswer, handlePageChange, currQuestionId } = props;
+    const { page, data, onQuestionClick, postQuestion, backToQuestionsFromTags, backToQuestions, postAnswer, handlePageChange, currQuestionId, userId} = props;
 
     const [currentPage, setCurrentPage] = useState(1);
     const itemsPerPage = 5;
@@ -51,7 +51,7 @@ export default function DisplayContainer(props) {
             displayContent = <PostAnswer currQuestionId={currQuestionId} backToQuestions={backToQuestions} answerQuestion={postAnswer} handlePageChange ={handlePageChange}/>;
             break;
         case 'detail':
-            displayContent = <QuestionPage handlePageChange={handlePageChange} currQuestionId={currQuestionId} />;
+            displayContent = <QuestionPage handlePageChange={handlePageChange} currQuestionId={currQuestionId}  userId= {userId}/>;
             break;
         case 'login':
             displayContent = <Login backToQuestions= {backToQuestions} handlePageChange={handlePageChange} />;

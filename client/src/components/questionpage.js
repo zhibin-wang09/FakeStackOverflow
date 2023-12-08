@@ -4,7 +4,7 @@ import formatTimeSince from "../formattime";
 import extractLinks from "../processInput.js";
 
 
-export default function QuestionPage({ handlePageChange, currQuestionId }) {
+export default function QuestionPage({ handlePageChange, currQuestionId, userId}) {
   const [answers, setAnswers] = useState([]);
   const [askedBy, setAskedBy] = useState("");
   const [question, setQuestion] = useState([]);
@@ -13,13 +13,29 @@ export default function QuestionPage({ handlePageChange, currQuestionId }) {
   const [errorMsg, setErrorMsg] = useState("");
   const [showQuestionPopup, setShowQuestionPopup] = useState(false);
   const [showAnswerPopup, setShowAnswerPopup] = useState(false);
+  const [errMsg, setErrMsg] = useState('');
 
   useEffect(() => {
     const fetchData = async () => {
       try {
         const res = await axios.get(`http://localhost:8000/get/questions/${currQuestionId}`);
         setQuestion(res.data);
-        setAnswers(res.data.answers);
+        if(userId !== ""){
+          let answers = [];
+          res.data.answers.forEach(u => {
+            if(u.ans_by._id.toString() === userId){
+              answers.push(u);
+            }
+          })
+          res.data.answers.forEach(u => {
+            if(u.ans_by._id.toString() !== userId){
+              answers.push(u);
+            }
+          })
+          setAnswers(answers);
+        }else{
+          setAnswers(res.data.answers)
+        }
         setAskedBy(res.data.asked_by.username);
       } catch (error) {
         console.error('Error fetching question details:', error);
@@ -90,10 +106,7 @@ export default function QuestionPage({ handlePageChange, currQuestionId }) {
           console.log(err.response.data);
         })
       }
-      // if rep less than 50, show error -> backend turd get on this
-      
-      // voting w/ no rep is allowed
-      // console.log("Add comment:", comment);
+
     };
 
         // Separate handling for question and answer comment popups
@@ -140,47 +153,56 @@ export default function QuestionPage({ handlePageChange, currQuestionId }) {
   };
 
   const handleQuestionUpvote = (e) => {
+    setErrMsg("");
     axios.put(`http://localhost:8000/put/increaseQuestionVote/${currQuestionId}`,{},{
       withCredentials: true
     }).then(response => {
       setQuestion(response.data); // update question to render new upvote amount
     }).catch(err => {
-      console.log(err.response.data)
+      setErrMsg(err.response.data);
     })
   }
 
   const handleQuestionDownvote = (e) => {
+    setErrMsg("");
     axios.put(`http://localhost:8000/put/decreaseQuestionVote/${currQuestionId}`,{},{
       withCredentials: true
     }).then(response => {
       setQuestion(response.data); // update question to render new upvote amount
     }).catch(err => {
-      console.log(err.response.data)
+      setErrMsg(err.response.data);
     })
   }
 
   const handleAnswerUpvote = (e) => {
+    setErrMsg("");
     axios.put(`http://localhost:8000/put/increaseAnswerVote/${e.target.id}`,{},{
       withCredentials: true
     }).then(response => {
       setAnswers(answers.map(a => a._id === e.target.id ? response.data : a)); // replace the old answer to render new vote amonut
     }).catch(err => {
-      console.log(err.response.data)
+      setErrMsg(err.response.data);
     })
   }
 
   const handleAnswerDownvote = (e) => {
+    setErrMsg("");
     axios.put(`http://localhost:8000/put/decreaseAnswerVote/${e.target.id}`,{},{
       withCredentials: true
     }).then(response => {
       setAnswers(answers.map(a => a._id === e.target.id ? response.data : a)); // replace the old answer to render new vote amonut
     }).catch(err => {
-      console.log(err.response.data)
+      setErrMsg(err.response.data);
     })
+  }
+
+  const editAnswer = (answerId) => { // change to edit question page
+    handlePageChange({target: {id: "edit-answer"}, questionId: answerId});
   }
 
   return (
     <div>
+      <strong>{errMsg}</strong>
       <div className="bg-gray-100 rounded-lg p-4 shadow-md mb-4 mx-8">
         <div className="flex justify-between items-center">
           <div className="flex items-center space-x-2">
@@ -218,9 +240,12 @@ export default function QuestionPage({ handlePageChange, currQuestionId }) {
             <button className="text-blue-500 mr-4" onClick={handleAnswerUpvote} id = {answer._id}> 
               Upvote
             </button>
-            <button className="text-red-500" onClick={handleAnswerDownvote} id = {answer._id}>
+            <button className="text-red-500 mr-4" onClick={handleAnswerDownvote} id = {answer._id}>
               Downvote
             </button>
+            {(userId !== "" && userId === answer.ans_by._id.toString()) ? <button onClick={() => editAnswer(answer._id)}>
+              Edit
+            </button> : ""}
             <div className="text-gray-500 mt-1">Votes: {answer.votes}</div>
           </div>
           <div className="mt-4">

@@ -4,7 +4,7 @@ import React, { useEffect, useState } from "react";
 export default function ProfilePage(props) {
   // placeholder data that I use for testing this crap cus idk what backend doin 
   const [user, setUser] = useState({});
-  const [answers, setAnswers] = useState([]);
+  const [questionAnswered, setQuestionAnswered] = useState([]);
   const [questions, setQuestions] = useState([]);
   const [tags,setTags] = useState([]);
   const [errMsg, setErrMsg] = useState("");
@@ -19,9 +19,9 @@ export default function ProfilePage(props) {
     .then(response => {
       setUser(response.data.u[0]);
       setQuestions(response.data.q);
-      setAnswers(response.data.a);
       setTags(response.data.t);
       setIsAdmin(response.data.u[0].role === 'normal' ? false : true); // sets if the user is admin or not
+      setQuestionAnswered(response.data.qAnswered);
     }).catch(err => {
       setErrMsg(err.response.data);
     })
@@ -55,7 +55,6 @@ export default function ProfilePage(props) {
     })
     .then(res => {
       setQuestions(res.data.q);
-      setAnswers(res.data.a);
       setTags(res.data.t);
     }).catch(err => {
       console.log(err);
@@ -74,22 +73,6 @@ export default function ProfilePage(props) {
   };
 
 
-  const editAnswer = (answerId) => {
-    props.handlePageChange({target: {id: 'edit-answer'}, questionId: answerId});
-  };
-
-
-  const deleteAnswer = (answerId) => {
-    axios.post(`http://localhost:8000/post/deleteAnswer/${answerId}`,{},{
-      withCredentials: true
-    })
-    .then(res => {
-      setAnswers(res.data);
-    }).catch(err => {
-      console.log(err);
-    })
-  };
-
   const deleteUser = (userId) => {
     axios.post(`http://localhost:8000/post/deleteUser/${userId}`, {},{
       withCredentials: true
@@ -98,6 +81,15 @@ export default function ProfilePage(props) {
     }).catch(err => {
       console.log(err);
     })
+  }
+
+  const switchProfile = (userId) => {
+
+  }
+
+  // this function should take the site to the question detail page
+  const toQuestionDetail = (questionId) => {
+    props.handlePageChange({target : {id: 'detail'}, id: user._id.toString(), questionId : questionId})
   }
 
   const renderAdminInfo = () => {
@@ -123,9 +115,9 @@ export default function ProfilePage(props) {
             <ul>
               {users.map(u => {
                   return (<li id ={u._id} key={u._id} className="mb-2">
-                      <a>
+                      <strong onClick={() => switchProfile(u._id)}>
                         {u.email}
-                      </a>
+                      </strong>
                       <button className="ml-2 text-sm text-red-500" onClick={() => deleteUser(u._id)}>
                         Delete
                       </button>
@@ -164,18 +156,12 @@ export default function ProfilePage(props) {
           <ul>
             {questions.map((question) => (
               <li id= {question._id} key={question._id} className="mb-2">
-                <a
-                  href={`/questions/${question.id}`}
+                <strong
+                  onClick={() => editQuestion(question._id)}
                   className="text-blue-500 hover:underline"
                 >
                   {question.title}
-                </a>
-                <button
-                  className="ml-2 text-sm text-gray-500"
-                  onClick={() => editQuestion(question._id)}
-                >
-                  Edit
-                </button>
+                </strong>
                 <button
                   className="ml-2 text-sm text-red-500"
                   onClick={() => deleteQuestion(question._id)}
@@ -217,27 +203,14 @@ export default function ProfilePage(props) {
         <div>
           <h3 className="text-lg font-bold mb-2">Questions I've Answered</h3>
           <ul>
-            {answers.map((answeredQuestion) => (
+            {questionAnswered.map((answeredQuestion) => (
               <li key={answeredQuestion._id} className="mb-2">
-                <a
-                  href={`/questions/${answeredQuestion.id}`}
+                <strong
                   className="text-blue-500 hover:underline"
+                  onClick={() => toQuestionDetail(answeredQuestion._id)}
                 >
-                  {answeredQuestion.text}
-                </a>
-                {/* Display user's answer */}
-                <button
-                  className="ml-2 text-sm text-gray-500"
-                  onClick={() => editAnswer(answeredQuestion._id)} // Fix: Pass answeredQuestion.id instead of answeredQuestion._id
-                >
-                  Edit Answer
-                </button>
-                <button
-                  className="ml-2 text-sm text-red-500"
-                  onClick={() => deleteAnswer(answeredQuestion._id)} // Fix: Pass answeredQuestion.id instead of answeredQuestion._id
-                >
-                  Delete Answer
-                </button>
+                  {answeredQuestion.title}
+                </strong>
               </li>
             ))}
           </ul>
