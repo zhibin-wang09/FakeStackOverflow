@@ -55,7 +55,8 @@ async function adminCreate(username, password, email){
         username: username,
         password: hashpass,
         email: email,
-        role: 'admin'
+        role: 'admin',
+        reputation: 10000
     }
     let user = new User(userdetail)
     return user.save()
@@ -66,7 +67,7 @@ function userCreate(username, password,email){
         username: username,
         password: password,
         email: email,
-        role: 'user'
+        role: 'normal'
     }
     let user = new User(userdetail)
     return user.save()

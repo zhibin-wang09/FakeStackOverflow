@@ -163,6 +163,11 @@ const getQuestionById = async (req,res) => {
 const increaseQuestionVote = async (req,res) => {
     const id = req.params.id; // use the id to identify the question
     let q = await question.findOne({_id: id}); // find the question and its associated information
+    u = await user.find({_id : q.asked_by});
+    if(u[0].reputation < 50){
+        res.status(400).send("You can not vote yet. Reputation is less than 50. Please get more votes from other people.")
+        return;
+    }
     await question.updateOne({_id: id}, {votes : q.votes + 1}); // increase the reputation by 1
     q = await question.findOne({_id: id}); // find the question and its associated information
     res.status(200).send(q)
@@ -172,6 +177,11 @@ const increaseQuestionVote = async (req,res) => {
 const decreaseQuestionVote = async (req,res) => {
     const id = req.params.id;
     let q = await question.findOne({_id: id});
+    u = await user.find({_id : q.asked_by});
+    if(u[0].reputation < 50){
+        res.status(400).send("You can not vote yet. Reputation is less than 50. Please get more votes from other people.")
+        return;
+    }
     await question.updateOne({_id: id}, {votes: q.votes -1});
     q = await question.findOne({_id: id}); // find the question and its associated information
     res.status(200).send(q)
@@ -219,21 +229,36 @@ const deleteQuestion = async (req,res) => { // deleting a question will delete a
     const id = req.params.id;
     let q = await question.findOne({_id: id}).populate('answers').populate('comment'); // populate the fields that we need to delete
     for(const j in q["comment"]){ // go through each comment and delete each individual one
-        const commentId = q[i]['comment'][j]._id;
+        const commentId = q['comment'][j]._id;
         await comment.deleteOne({_id: commentId});
     }
     
-    for(const j in q["answers"]["comment"]){ // go through each individual comment in the answers and delete the comments then the answer
+    for(const i in q["answers"]){ // go through each individual comment in the answers and delete the comments then the answer
         for(const j in q['answers']["comment"]){
-            const commentId = q['answers']['comment']._id;
+            const commentId = q['answers'][i]['comment'][j]._id;
             await comment.deleteOne({_id: commentId});
         }
-        const answerId = q[i]['answers'][j]._id;
+        const answerId = q['answers'][i]._id;
         await answer.deleteOne({_id:answerId});
     }
     await question.deleteOne({_id:id}); // lastly delete the question
-    q = await question.find({}); // the new questions set
-    res.status(200).send(q);
+    let u = await user.findOne({email: req.body.email});
+    q = await question.find({asked_by: u }); // the new questions set for the user
+    a = await answer.find({ans_by: u}); // the new answer set for the user
+    t = await tag.find({});
+    for(const i in t){
+        for(const j in t[i].users){
+            if(t[i].users[j]._id.toString() === u.id){
+                await tag.updateOne({_id: t[i]._id}, {users: t[i].users.filter(uu => uu._id.toString() !== u.id)});
+                let tt = await tag.findOne({_id: t[i]._id});
+                if(tt.users.length == 0){
+                    await tag.deleteOne({_id:tt._id});
+                }
+            }
+        }
+    }
+    t = await tag.find({users:u});
+    res.status(200).send({q,a,t});
 }
 const modifyQuestion = async (req,res) => { // modifying existing quesition in the databse
     const id = req.params.id;

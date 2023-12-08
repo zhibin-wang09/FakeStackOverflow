@@ -15,7 +15,6 @@ const getAnswers = async (req, res) => { // a get method that handles retrieval 
 
 const postAnswers = async (req, res) => { // a post method that handles new answers
     // a new answer must be related to a question
-    console.log(req.body.email);
     const q = await question.find({_id: req.params.id});
     const u = await user.findOne({email: req.body.email}); // find the user who answered the question
     const ans = await answer.create({text: req.body.text, ans_by :u});
@@ -61,11 +60,26 @@ const decreaseAnswerVote = async (req,res) => {
 
 const deleteAnswer = async (req,res) => { // deleting an answer will delete all of its associated comment
     const id = req.params.id;
-    const a = await answers.findOne({_id: id}).populate("comment");
+    let a = await answer.findOne({_id: id}).populate("comment");
     for(const i in a["comment"]){ // go through the comments and delete each one
         await comment.deleteOne({_id : a['comment'][i]._id});
     }
     await answers.deleteOne({_id : id});
+    const u = await user.findOne({email: req.body.email});
+    a = await answer.find({ans_by: u});
+    res.status(200).send(a);
 }
 
-module.exports = {getAnswers, postAnswers, increaseAnswerVote, decreaseAnswerVote, deleteAnswer};
+const modifyAnswer = async (req, res) => {
+    const id = req.params.id;
+    await answer.updateOne({_id: id}, {text: req.body.text});
+    res.status(200).send("Sucess");
+}
+
+const getAnswer = async (req,res) => {
+    const id = req.params.id;
+    let a = await answer.findOne({_id: id});
+    res.status(200).send(a);
+}
+
+module.exports = {getAnswers, postAnswers, increaseAnswerVote, decreaseAnswerVote, deleteAnswer,modifyAnswer, getAnswer};
