@@ -87,6 +87,7 @@ export default function QuestionPage({ handlePageChange, currQuestionId, userId}
           setShowPopup(false);
           setComment("");
           setErrorMsg("");
+          setQuestion(res.data);
         }).catch(err => {
           alert(err.response.data);
         })
@@ -97,7 +98,13 @@ export default function QuestionPage({ handlePageChange, currQuestionId, userId}
         },{
           withCredentials: true
         }).then(res => {
-
+          setAnswers(answers.map(a => {
+            if(a._id === res.data._id){
+              return res.data;
+            }else{
+              return a;
+            }
+          }))
           setShowPopup(false);
           setComment("");
           setErrorMsg("");
