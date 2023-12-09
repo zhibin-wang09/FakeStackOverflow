@@ -56,6 +56,7 @@ export default function ProfilePage(props) {
     .then(res => {
       setQuestions(res.data.q);
       setTags(res.data.t);
+      setQuestionAnswered(res.data.qAnswered);
     }).catch(err => {
       console.log(err);
     })
@@ -64,12 +65,18 @@ export default function ProfilePage(props) {
 
   const editTag = (tagId) => {
     // do later
-    console.log(`Editing tag with ID ${tagId}`);
+    props.handlePageChange({target: {id : 'edit-tag'}, questionId : tagId});
   };
 
   const deleteTag = (tagId) => {
-    // do later
-    console.log(`Deleting tag with ID ${tagId}`);
+    console.log(tagId);
+    axios.post(`http://localhost:8000/post/deleteTag/${tagId}`, {},{
+      withCredentials: true
+    }).then(res => {
+      setTags(res.data);
+    }).catch(err => {
+      console.log(err);
+    })
   };
 
 
@@ -84,7 +91,7 @@ export default function ProfilePage(props) {
   }
 
   const switchProfile = (userId) => {
-
+    
   }
 
   // this function should take the site to the question detail page
@@ -179,17 +186,17 @@ export default function ProfilePage(props) {
             {tags.map((tag) => (
               <li key={tag._id} className="mb-2">
                 <span>{tag.name}</span>
-                {tag.editable && (
+                {(
                   <>
                     <button
                       className="ml-2 text-sm text-gray-500"
-                      onClick={() => editTag(tag.id)} // Fix: Pass tag.id instead of tag._id
+                      onClick={() => editTag(tag._id)} // Fix: Pass tag.id instead of tag._id
                     >
                       Edit
                     </button>
                     <button
                       className="ml-2 text-sm text-red-500"
-                      onClick={() => deleteTag(tag.id)} // Fix: Pass tag.id instead of tag._id
+                      onClick={() => deleteTag(tag._id)} // Fix: Pass tag.id instead of tag._id
                     >
                       Delete
                     </button>

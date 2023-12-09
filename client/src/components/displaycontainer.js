@@ -9,6 +9,7 @@ import Signup from './signup.js';
 import ProfilePage from './profile.js';
 import UpdateQuestion from './updatequestion.js';
 import UpdateAnswer from './updateAnswer.js';
+import UpdateTag from './updatetag.js';
 
 export default function DisplayContainer(props) {
     const { page, data, onQuestionClick, postQuestion, backToQuestionsFromTags, backToQuestions, postAnswer, handlePageChange, currQuestionId, userId} = props;
@@ -67,6 +68,9 @@ export default function DisplayContainer(props) {
             break;
         case 'edit-answer':
             displayContent = <UpdateAnswer questionId= {currQuestionId} handlePageChange = {handlePageChange}/>
+            break;
+        case 'edit-tag':
+            displayContent = <UpdateTag questionId = {currQuestionId} handlePageChange = {handlePageChange} ></UpdateTag>
             break;
         default:
             break;

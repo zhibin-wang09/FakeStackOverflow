@@ -248,7 +248,23 @@ const deleteQuestion = async (req,res) => { // deleting a question will delete a
     await question.deleteOne({_id:id}); // lastly delete the question
     let u = await user.findOne({email: req.body.email});
     q = await question.find({asked_by: u }); // the new questions set for the user
-    a = await answer.find({ans_by: u}); // the new answer set for the user
+    const qAnswered = [];
+    const allQ = await question.find({}).populate({
+        path: 'answers',
+        populate: {
+            path: 'ans_by',
+            model: 'User'
+        }
+    });
+    for(const i in allQ){
+        for(const j in allQ[i]['answers']){
+            if(allQ[i]['answers'][j].ans_by._id.toString() === u._id.toString()){
+                allQ[i]['answers'][j].ans_by.password = null;
+                allQ[i]['answers'][j].ans_by.email = null;
+                qAnswered.push(allQ[i]);
+            }
+        }
+    }
     t = await tag.find({});
     for(const i in t){
         for(const j in t[i].users){
@@ -258,7 +274,7 @@ const deleteQuestion = async (req,res) => { // deleting a question will delete a
         }
     }
     t = await tag.find({users:u});
-    res.status(200).send({q,a,t});
+    res.status(200).send({q,qAnswered,t});
 }
 const modifyQuestion = async (req,res) => { // modifying existing quesition in the databse
     const id = req.params.id;
