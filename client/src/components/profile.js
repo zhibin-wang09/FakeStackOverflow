@@ -97,7 +97,7 @@ export default function ProfilePage(props) {
     })
   };
 
-  const deleteUser = (userId) => {
+  const deleteUser = (userId,role) => {
     axios.post(`http://localhost:8000/post/deleteUser/${userId}`, {}, {
       withCredentials: true
     })
@@ -108,6 +108,15 @@ export default function ProfilePage(props) {
           delete updatedPopups[userId]; // Remove the user's delete popup state from the object
           return updatedPopups;
         });
+        if(role === "admin"){
+          axios.post('http://localhost:8000/logout',{}, {
+            withCredentials:true
+          }).then(res => {
+            props.handlePageChange({target: {id: 'question-page'}});
+          }).catch(err => {
+            console.log(err.response.data);
+          })
+        }
       }).catch(err => {
         console.log(err.response.data);
       })
@@ -135,7 +144,7 @@ export default function ProfilePage(props) {
   const toQuestionDetail = (questionId) => {
     props.handlePageChange({target : {id: 'detail'}, id: user._id.toString(), questionId : questionId})
   }
-  const renderAlert = (userId) => {
+  const renderAlert = (userId,role) => {
     return (
       <>
         <button className="ml-2 text-sm text-red-500" onClick={() => setDeletePopups(prevState => ({ ...prevState, [userId]: true }))}>
@@ -150,7 +159,7 @@ export default function ProfilePage(props) {
                 <div className="flex justify-end">
                   <button
                     className="bg-blue-500 hover:bg-blue-400 text-white font-bold py-2 px-4 rounded"
-                    onClick={() => deleteUser(userId)}
+                    onClick={() => deleteUser(userId, role)}
                   >
                     Yes
                   </button>
@@ -195,7 +204,7 @@ export default function ProfilePage(props) {
                       <strong className= "text-blue-500 hover:underline" onClick={() => switchProfile(u._id)}>
                         {u.email}
                       </strong>
-                      {renderAlert(u._id, u.email)}
+                      {renderAlert(u._id, u.role)}
                   </li>)
                 })
               }
