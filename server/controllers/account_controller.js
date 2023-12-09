@@ -35,13 +35,11 @@ const getCurrentUserInfo = async (req,res) => {
     const u = await user.find({email: req.body.email}); // the current user from the client side making the request
     const q = await question.find({asked_by: u}); // find all the question asscoiated with the user
     const a = await answers.find({ans_by: u}); // find all the answers associated with the user
-    let t = await tags.find({}).populate('users');
+    let t = await tags.find({});
     let tagarr = [];
     for(let i =0;i < t.length; i++){
-        for(let j = 0; j < t[i].users.length;j ++){
-            if(t[i].users[j].email === u[0].email){
-                tagarr.push(t[i]);
-            }
+        if(t[i].users.includes(u[0]._id)){
+            tagarr.push(t[i]);
         }
     }
     t = tagarr

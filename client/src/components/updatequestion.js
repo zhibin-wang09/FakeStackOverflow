@@ -26,7 +26,7 @@ export default function UpdateQuestion( {questionId, handlePageChange}) {
                 for(const i in tags){
                     tagsString = tagsString.concat(tags[i].name + " "); // append the names to the string
                 }
-                if(tagsString.length !== 0) tagsString.slice(0,tagsString.length -1); // remove the last space
+                if(tagsString.length !== 0) tagsString = tagsString.slice(0,tagsString.length -1); // remove the last space
                 setTags(tagsString); // set the tag
             })
             .catch((error) => {

@@ -18,8 +18,12 @@ const postQuestion = async (req, res) => { // a post method to handle new questi
             const newTag = await tag.create({name : req.body.tags[t], users: [u]});
             tags.push(newTag);
         }else{
-            await tag.updateOne({name: req.body.tags[t]}, {users: [...tagInDataBase[0].users, u]}); // add a new creator of tag
             tags.push(tagInDataBase[0]);
+            let tt = await tag.findOne({name: req.body.tags[t]});
+            if(tt.users.includes(u._id)){ // if already is the creator of tag
+                continue;
+            }
+            await tag.updateOne({name: req.body.tags[t]}, {users: [...tagInDataBase[0].users, u]}); // add a new creator of tag
         }
     }
     const q = await question.create({title : req.body.title, text : req.body.text, tags : tags, asked_by : u});
@@ -250,10 +254,6 @@ const deleteQuestion = async (req,res) => { // deleting a question will delete a
         for(const j in t[i].users){
             if(t[i].users[j]._id.toString() === u.id){
                 await tag.updateOne({_id: t[i]._id}, {users: t[i].users.filter(uu => uu._id.toString() !== u.id)});
-                let tt = await tag.findOne({_id: t[i]._id});
-                if(tt.users.length == 0){
-                    await tag.deleteOne({_id:tt._id});
-                }
             }
         }
     }
@@ -263,12 +263,21 @@ const deleteQuestion = async (req,res) => { // deleting a question will delete a
 const modifyQuestion = async (req,res) => { // modifying existing quesition in the databse
     const id = req.params.id;
     const tags = [];
+    const u = await user.findOne({email: req.body.email});
     if(req.body.tags){
         for(const t in req.body.tags){
+            if(req.body.tags[t] === ' ') continue;
             const tagInDataBase = await tag.find({name: req.body.tags[t]}); // check if the tag already exist
             if(tagInDataBase.length == 0){
-                const newTag = await tag.create({name : req.body.tags[t]});
+                console.log(req.body.tags[t]);
+                const newTag = await tag.create({name : req.body.tags[t], users : [u]});
                 tags.push(newTag);
+            }else{
+                tags.push(tagInDataBase[0]);
+                if(tagInDataBase[0].users.includes(u._id)){ // if already is the creator of tag
+                    continue;
+                }
+                await tag.updateOne({name: req.body.tags[t]}, {users: [...tagInDataBase[0].users, u]}); // add a new creator of tag
             }
         }
     }
