@@ -25,6 +25,7 @@ export default function ProfilePage(props) {
   const [errMsg, setErrMsg] = useState("");
   const [isAdmin, setIsAdmin] = useState(false);
   const [users, setUsers] = useState([]);
+  const [popUp, setPopUp] = useState(false);
 
   useEffect(() => {
     setErrMsg("");
@@ -100,8 +101,9 @@ export default function ProfilePage(props) {
       withCredentials: true
     }).then(res => {
       setUsers(res.data);
+      setPopUp(false);
     }).catch(err => {
-      console.log(err);
+      console.log(err.response.data);
     })
   }
 
@@ -127,6 +129,40 @@ export default function ProfilePage(props) {
     props.handlePageChange({target : {id: 'detail'}, id: user._id.toString(), questionId : questionId})
   }
 
+  const renderAlert = (userId) => {
+    return (
+      <>
+        <button className="ml-2 text-sm text-red-500" onClick={() => setPopUp(true)}>
+                        Delete
+          </button>
+          {popUp &&  (
+          <div className="fixed inset-0 flex items-center justify-center z-10">
+            <div className="absolute inset-0 bg-gray-900 opacity-50"></div>
+            <div className="absolute inset-0 flex items-center justify-center">
+              <div className="bg-white rounded-lg p-4 shadow-md">
+                <strong>Are you sure you want to delete this user?</strong>
+                <div className="flex justify-end">
+                  <button
+                    className="bg-blue-500 hover:bg-blue-400 text-white font-bold py-2 px-4 rounded"
+                    onClick={() => deleteUser(userId)}
+                  >
+                    Yes
+                  </button>
+                  <button
+                    className="bg-gray-300 hover:bg-gray-200 text-gray-700 font-bold py-2 px-4 rounded ml-2"
+                    onClick={() => setPopUp(false)}
+                  >
+                    Cancel
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>)}
+      </>
+
+    )
+  }
+
   const renderAdminInfo = () => {
     return (
       <div className="mx-8 mt-4"> 
@@ -143,7 +179,6 @@ export default function ProfilePage(props) {
               <p>Reputation: {user.reputation}</p>
             </div>
           </div>
-
           <div>
             <h3 className="text-lg font-bold mb-2">Users</h3>
             <h5 className="text-lg font-bold mb-2">Total users: {users.length}</h5>
@@ -153,9 +188,7 @@ export default function ProfilePage(props) {
                       <strong className= "text-blue-500 hover:underline" onClick={() => switchProfile(u._id)}>
                         {u.email}
                       </strong>
-                      <button className="ml-2 text-sm text-red-500" onClick={() => deleteUser(u._id)}>
-                        Delete
-                      </button>
+                      {renderAlert(u._id)}
                   </li>)
                 })
               }
