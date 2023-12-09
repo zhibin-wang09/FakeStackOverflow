@@ -74,25 +74,63 @@ export default function QuestionPage({ handlePageChange, currQuestionId, userId}
     return comments.map((comment) => (
       <div key={comment._id} className="ml-8 mt-2 text-gray-600">
         <div className="flex items-center space-x-2">
-          <button className="text-blue-500 hover:text-blue-400" onClick={() => handleCommentUpvote(comment._id)}>
+          <button className="text-blue-500 hover:text-blue-400" onClick={() => handleCommentUpvote(comment._id, targetId, isQuestion)}>
             Upvote
           </button>
-          <button className="text-red-500 hover:text-red-400" onClick={() => handleCommentDownvote(comment._id)}>
+          <button className="text-red-500 hover:text-red-400" onClick={() => handleCommentDownvote(comment._id, targetId, isQuestion)}>
             Downvote
           </button>
-          <strong className="text-gray-500">Votes: {comment.votes} -</strong> {comment.text}
+          <strong className="text-gray-500">Votes: {comment.votes} - </strong> {comment.text}
         </div>
       </div>
     ));
   };
 
-  const handleCommentUpvote = (commentId) => {
-    // todo
+  const handleCommentUpvote = (commentId,targetId,isQuestion) => {
+    axios.post(`http://localhost:8000/post/increaseCommentVote/${commentId}`,{
+      id: targetId,
+      isQuestion: isQuestion
+    },{
+      withCredentials: true
+    }).then(res => {
+      if(isQuestion){
+        setQuestion(res.data);
+      }else{
+        setAnswers(answers.map(a => {
+          if(a._id === res.data._id){
+            return res.data;
+          }else{
+            return a;
+          }
+        }))
+      }
+    }).catch(err => {
+      console.log(err);
+    })
   };
   
-  // Function to handle comment downvote
-  const handleCommentDownvote = (commentId) => {
-    // todo
+
+  const handleCommentDownvote = (commentId,targetId,isQuestion) => {
+    axios.post(`http://localhost:8000/post/decreaseCommentVote/${commentId}`,{
+      id: targetId,
+      isQuestion: isQuestion
+    },{
+      withCredentials: true
+    }).then(res => {
+      if(isQuestion){
+        setQuestion(res.data);
+      }else{
+        setAnswers(answers.map(a => {
+          if(a._id === res.data._id){
+            return res.data;
+          }else{
+            return a;
+          }
+        }))
+      }
+    }).catch(err => {
+      console.log(err);
+    })
   };
   
   const renderCommentForm = (targetId, isQuestion) => {
@@ -285,7 +323,7 @@ export default function QuestionPage({ handlePageChange, currQuestionId, userId}
           </div>
           <div className="mt-4">
       <h3 className="text-lg font-semibold mb-2">Comments:</h3>
-        {renderComments(answer.comment)}
+        {renderComments(answer.comment, answer._id, false)}
         {renderCommentForm(answer._id)}
       </div>
         </div>
