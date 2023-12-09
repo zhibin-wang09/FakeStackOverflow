@@ -1,15 +1,31 @@
 import axios from "axios";
 import React, { useEffect, useState } from "react";
 
+function daysPassedSinceISODate(isoDate) {
+  const currentDate = new Date();
+  const isoDateObject = new Date(isoDate);
+
+  // Calculate the difference in milliseconds
+  const timeDifference = currentDate - isoDateObject;
+
+  // Convert milliseconds to days
+  const daysPassed = Math.floor(timeDifference / (1000 * 60 * 60 * 24));
+  if(isNaN(daysPassed)){
+    return "";
+  }
+  return daysPassed;
+}
+
 export default function ProfilePage(props) {
   // placeholder data that I use for testing this crap cus idk what backend doin 
   const [user, setUser] = useState({});
-  const [answers, setAnswers] = useState([]);
+  const [questionAnswered, setQuestionAnswered] = useState([]);
   const [questions, setQuestions] = useState([]);
   const [tags,setTags] = useState([]);
   const [errMsg, setErrMsg] = useState("");
   const [isAdmin, setIsAdmin] = useState(false);
   const [users, setUsers] = useState([]);
+  const [popUp, setPopUp] = useState(false);
 
   useEffect(() => {
     setErrMsg("");
@@ -19,9 +35,9 @@ export default function ProfilePage(props) {
     .then(response => {
       setUser(response.data.u[0]);
       setQuestions(response.data.q);
-      setAnswers(response.data.a);
       setTags(response.data.t);
       setIsAdmin(response.data.u[0].role === 'normal' ? false : true); // sets if the user is admin or not
+      setQuestionAnswered(response.data.qAnswered);
     }).catch(err => {
       setErrMsg(err.response.data);
     })
@@ -55,8 +71,8 @@ export default function ProfilePage(props) {
     })
     .then(res => {
       setQuestions(res.data.q);
-      setAnswers(res.data.a);
       setTags(res.data.t);
+      setQuestionAnswered(res.data.qAnswered);
     }).catch(err => {
       console.log(err);
     })
@@ -65,39 +81,86 @@ export default function ProfilePage(props) {
 
   const editTag = (tagId) => {
     // do later
-    console.log(`Editing tag with ID ${tagId}`);
+    props.handlePageChange({target: {id : 'edit-tag'}, questionId : tagId});
   };
 
   const deleteTag = (tagId) => {
-    // do later
-    console.log(`Deleting tag with ID ${tagId}`);
-  };
-
-
-  const editAnswer = (answerId) => {
-    props.handlePageChange({target: {id: 'edit-answer'}, questionId: answerId});
-  };
-
-
-  const deleteAnswer = (answerId) => {
-    axios.post(`http://localhost:8000/post/deleteAnswer/${answerId}`,{},{
+    console.log(tagId);
+    axios.post(`http://localhost:8000/post/deleteTag/${tagId}`, {},{
       withCredentials: true
-    })
-    .then(res => {
-      setAnswers(res.data);
+    }).then(res => {
+      setTags(res.data);
     }).catch(err => {
       console.log(err);
     })
   };
+
 
   const deleteUser = (userId) => {
     axios.post(`http://localhost:8000/post/deleteUser/${userId}`, {},{
       withCredentials: true
     }).then(res => {
       setUsers(res.data);
+      setPopUp(false);
     }).catch(err => {
-      console.log(err);
+      console.log(err.response.data);
     })
+  }
+
+  const switchProfile = (userId) => {
+    console.log("reqreq")
+    axios.get(`http://localhost:8000/profile/${userId}`,{
+      withCredentials: true
+    })
+    .then(response => {
+      console.log(response);
+      setUser(response.data.u[0]);
+      setQuestions(response.data.q);
+      setTags(response.data.t);
+      setIsAdmin(response.data.u[0].role === 'normal' ? false : true); // sets if the user is admin or not
+      setQuestionAnswered(response.data.qAnswered);
+    }).catch(err => {
+      setErrMsg(err.response.data);
+    })
+  }
+
+  // this function should take the site to the question detail page
+  const toQuestionDetail = (questionId) => {
+    props.handlePageChange({target : {id: 'detail'}, id: user._id.toString(), questionId : questionId})
+  }
+
+  const renderAlert = (userId) => {
+    return (
+      <>
+        <button className="ml-2 text-sm text-red-500" onClick={() => setPopUp(true)}>
+                        Delete
+          </button>
+          {popUp &&  (
+          <div className="fixed inset-0 flex items-center justify-center z-10">
+            <div className="absolute inset-0 bg-gray-900 opacity-50"></div>
+            <div className="absolute inset-0 flex items-center justify-center">
+              <div className="bg-white rounded-lg p-4 shadow-md">
+                <strong>Are you sure you want to delete this user?</strong>
+                <div className="flex justify-end">
+                  <button
+                    className="bg-blue-500 hover:bg-blue-400 text-white font-bold py-2 px-4 rounded"
+                    onClick={() => deleteUser(userId)}
+                  >
+                    Yes
+                  </button>
+                  <button
+                    className="bg-gray-300 hover:bg-gray-200 text-gray-700 font-bold py-2 px-4 rounded ml-2"
+                    onClick={() => setPopUp(false)}
+                  >
+                    Cancel
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>)}
+      </>
+
+    )
   }
 
   const renderAdminInfo = () => {
@@ -112,23 +175,20 @@ export default function ProfilePage(props) {
           <div className="flex items-center space-x-4 mb-4">
             <div>
               <p className="text-xl font-bold">{user.username}</p>
-              <p>Member since: {user.memberSince}</p>
+              <p>Member for: {daysPassedSinceISODate(user.memberSince)} days</p>
               <p>Reputation: {user.reputation}</p>
             </div>
           </div>
-
           <div>
             <h3 className="text-lg font-bold mb-2">Users</h3>
             <h5 className="text-lg font-bold mb-2">Total users: {users.length}</h5>
             <ul>
               {users.map(u => {
                   return (<li id ={u._id} key={u._id} className="mb-2">
-                      <a>
+                      <strong className= "text-blue-500 hover:underline" onClick={() => switchProfile(u._id)}>
                         {u.email}
-                      </a>
-                      <button className="ml-2 text-sm text-red-500" onClick={() => deleteUser(u._id)}>
-                        Delete
-                      </button>
+                      </strong>
+                      {renderAlert(u._id)}
                   </li>)
                 })
               }
@@ -154,7 +214,7 @@ export default function ProfilePage(props) {
         <div className="flex items-center space-x-4 mb-4">
           <div>
             <p className="text-xl font-bold">{user.username}</p>
-            <p>Member since: {user.memberSince}</p>
+            <p>Member for: {daysPassedSinceISODate(user.memberSince)} days</p>
             <p>Reputation: {user.reputation}</p>
           </div>
         </div>
@@ -164,18 +224,12 @@ export default function ProfilePage(props) {
           <ul>
             {questions.map((question) => (
               <li id= {question._id} key={question._id} className="mb-2">
-                <a
-                  href={`/questions/${question.id}`}
+                <strong
+                  onClick={() => editQuestion(question._id)}
                   className="text-blue-500 hover:underline"
                 >
                   {question.title}
-                </a>
-                <button
-                  className="ml-2 text-sm text-gray-500"
-                  onClick={() => editQuestion(question._id)}
-                >
-                  Edit
-                </button>
+                </strong>
                 <button
                   className="ml-2 text-sm text-red-500"
                   onClick={() => deleteQuestion(question._id)}
@@ -193,17 +247,17 @@ export default function ProfilePage(props) {
             {tags.map((tag) => (
               <li key={tag._id} className="mb-2">
                 <span>{tag.name}</span>
-                {tag.editable && (
+                {(
                   <>
                     <button
                       className="ml-2 text-sm text-gray-500"
-                      onClick={() => editTag(tag.id)} // Fix: Pass tag.id instead of tag._id
+                      onClick={() => editTag(tag._id)} // Fix: Pass tag.id instead of tag._id
                     >
                       Edit
                     </button>
                     <button
                       className="ml-2 text-sm text-red-500"
-                      onClick={() => deleteTag(tag.id)} // Fix: Pass tag.id instead of tag._id
+                      onClick={() => deleteTag(tag._id)} // Fix: Pass tag.id instead of tag._id
                     >
                       Delete
                     </button>
@@ -217,27 +271,14 @@ export default function ProfilePage(props) {
         <div>
           <h3 className="text-lg font-bold mb-2">Questions I've Answered</h3>
           <ul>
-            {answers.map((answeredQuestion) => (
+            {questionAnswered.map((answeredQuestion) => (
               <li key={answeredQuestion._id} className="mb-2">
-                <a
-                  href={`/questions/${answeredQuestion.id}`}
+                <strong
                   className="text-blue-500 hover:underline"
+                  onClick={() => toQuestionDetail(answeredQuestion._id)}
                 >
-                  {answeredQuestion.text}
-                </a>
-                {/* Display user's answer */}
-                <button
-                  className="ml-2 text-sm text-gray-500"
-                  onClick={() => editAnswer(answeredQuestion._id)} // Fix: Pass answeredQuestion.id instead of answeredQuestion._id
-                >
-                  Edit Answer
-                </button>
-                <button
-                  className="ml-2 text-sm text-red-500"
-                  onClick={() => deleteAnswer(answeredQuestion._id)} // Fix: Pass answeredQuestion.id instead of answeredQuestion._id
-                >
-                  Delete Answer
-                </button>
+                  {answeredQuestion.title}
+                </strong>
               </li>
             ))}
           </ul>

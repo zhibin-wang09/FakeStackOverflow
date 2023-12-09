@@ -6,6 +6,7 @@ const {getAnswers, postAnswers, increaseAnswerVote, decreaseAnswerVote, deleteAn
 const {getTag} = require('../controllers/tag_controller'); // crud method for tags
 const {signup, login, logout, verify, increaseReputation, decreaseReputation,getUser, getSession,getCurrentUserInfo,getAllUser,deleteUsers} = require('../controllers/account_controller'); // has all the authroization & authentication functions
 const {postCommentToQuestion,postCommentToAnswer, increaseCommentVote, decreaseCommentVote} = require('../controllers/comment_controller');
+const {deleteTag,getTagById,updateTagName} = require('../controllers/tag_controller');
 const router = express.Router();
 
 router.route('/get/questions').get(getQuestion); // retrieve questions
@@ -22,6 +23,7 @@ router.route('/session').post(getSession);
 router.route('/signup').post(signup);
 router.route('/logout').post(logout);
 router.route('/profile').get(verify, getCurrentUserInfo);
+router.route('/profile/:id').get(verify,getCurrentUserInfo);
 router.route('/admin/profile').get(verify,getAllUser);
 router.route('/put/increaseQuestionVote/:id').put(increaseQuestionVote);
 router.route('/put/decreaseQuestionVote/:id').put(decreaseQuestionVote);
@@ -39,5 +41,8 @@ router.route('/post/deleteAnswer/:id').post(verify,deleteAnswer);
 router.route('/put/modifyQuestion/:id').put(verify,modifyQuestion);
 router.route('/put/modifyAnswer/:id').put(verify,modifyAnswer);
 router.route('/post/deleteUser/:id').post(verify, deleteUsers);
+router.route('/post/deleteTag/:id').post(verify,deleteTag);
+router.route('/get/tag/:id').get(getTagById);
+router.route('/put/tagname/:id').put(updateTagName)
 
 module.exports = router;

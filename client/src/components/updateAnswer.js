@@ -60,7 +60,7 @@ export default function UpdateAnswer(props) {
                 
                     <button type="submit"
                         className="bg-blue-700 hover:bg-blue-800 text-white text-xs font-medium py-2 px-4 rounded-lg focus:ring-4 focus:ring-blue-200 focus:ring-opacity-50">
-                        Post Answer
+                        Edit Answer
                     </button>
                 </form>
             </div>

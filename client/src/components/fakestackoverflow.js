@@ -14,6 +14,7 @@ export default function FakeStackOverFlow() {
   const [currQuestionId, setCurrQuestionId] = useState(null);
   const [data, setData] = useState([]);
   const [dataNotChanging, setDataNotChanging] = useState([]);
+  const [userId, setUserId] = useState("");
 
   useEffect(() => {
     axios.get('http://localhost:8000/get/questions')
@@ -140,6 +141,11 @@ export default function FakeStackOverFlow() {
     if(e.questionId){
       setCurrQuestionId(e.questionId);
     }
+    if(e.id){
+      setUserId(e.id);
+    }else{
+      setUserId("");
+    }
     setSortAndPage({
       sortMethod: e.target.id === 'question-page' ? 'newest-btn' : sortAndPage.sortMethod,
       page: e.target.id
@@ -192,7 +198,7 @@ export default function FakeStackOverFlow() {
           <SubHeader currentPage={sortAndPage} currentQuestion={currentQuestion} handlePageChange={handlePageChange} numQuestions={numQuestions} />
           <Main data={data} searchValue={search} sortAndPage={sortAndPage} onQuestionClick={handleQuestionClick} currentQuestion={currentQuestion} postQuestion={handleDataUpdate}
                 backToQuestions={backToQuestions} handlePageChange={handlePageChange} postAnswer={handleDataUpdate} handleInputChange={handleInputChange} backToQuestionsFromTags={backToQuestionsFromTags} 
-                currQuestionId={currQuestionId}/>
+                currQuestionId={currQuestionId} userId = {userId}/>
         </div>
       </div>
     </>
