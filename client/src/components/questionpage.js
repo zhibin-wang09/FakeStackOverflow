@@ -3,6 +3,16 @@ import axios from 'axios';
 import formatTimeSince from "../formattime";
 import extractLinks from "../processInput.js";
 
+function sortByTimeAnswer(){
+  let sorttime = (a, b) => {
+      let currentTime = new Date();
+      let aDif = currentTime - new Date(a.ans_date_time);
+      let bDif = currentTime - new Date(b.ans_date_time);
+      return aDif - bDif;
+  }
+  return sorttime
+}
+
 
 export default function QuestionPage({ handlePageChange, currQuestionId, userId}) {
   const [answers, setAnswers] = useState([]);
@@ -27,6 +37,7 @@ export default function QuestionPage({ handlePageChange, currQuestionId, userId}
               answers.push(u);
             }
           })
+          answers.sort(sortByTimeAnswer());
           res.data.answers.forEach(u => {
             if(u.ans_by._id.toString() !== userId){
               answers.push(u);

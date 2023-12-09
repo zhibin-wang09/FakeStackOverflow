@@ -1,5 +1,6 @@
 import axios from "axios";
 import React, { useEffect, useState } from "react";
+import { sortByTime } from "../sort";
 
 function daysPassedSinceISODate(isoDate) {
   const currentDate = new Date();
@@ -37,7 +38,7 @@ export default function ProfilePage(props) {
       setQuestions(response.data.q);
       setTags(response.data.t);
       setIsAdmin(response.data.u[0].role === 'normal' ? false : true); // sets if the user is admin or not
-      setQuestionAnswered(response.data.qAnswered);
+      setQuestionAnswered(response.data.qAnswered.sort(sortByTime()));
     }).catch(err => {
       setErrMsg(err.response.data);
     })
@@ -96,15 +97,16 @@ export default function ProfilePage(props) {
   };
 
 
-  const deleteUser = (userId) => {
-    axios.post(`http://localhost:8000/post/deleteUser/${userId}`, {},{
-      withCredentials: true
-    }).then(res => {
-      setUsers(res.data);
-      setPopUp(false);
-    }).catch(err => {
-      console.log(err.response.data);
-    })
+  const deleteUser = (e) => {
+    console.log(e.target.id)
+    // axios.post(`http://localhost:8000/post/deleteUser/${e.target.id}`, {},{
+    //   withCredentials: true
+    // }).then(res => {
+    //   setUsers(res.data);
+    //   setPopUp(false);
+    // }).catch(err => {
+    //   console.log(err.response.data);
+    // })
   }
 
   const switchProfile = (userId) => {
@@ -144,7 +146,8 @@ export default function ProfilePage(props) {
                 <div className="flex justify-end">
                   <button
                     className="bg-blue-500 hover:bg-blue-400 text-white font-bold py-2 px-4 rounded"
-                    onClick={() => deleteUser(userId)}
+                    id = {userId}
+                    onClick={deleteUser}
                   >
                     Yes
                   </button>

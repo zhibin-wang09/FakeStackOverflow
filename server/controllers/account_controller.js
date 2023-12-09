@@ -23,7 +23,7 @@ const signup = async (req, res) => {
     }
     const salt = await bcrypt.genSalt(saltRound); // generate the hashing key
     const hashpass = await bcrypt.hash(password, salt); // hash the password
-    await user.create({username: username, password: hashpass, email: email}); // store in database
+    await user.create({username: username, password: hashpass, email: email,reputation:50}); // store in database
     res.status(200).send("Account created successfully"); 
 }
 
@@ -43,7 +43,7 @@ const getCurrentUserInfo = async (req,res) => {
         }
     }
     t = tagarr
-    const qAnswered = [];
+    let qAnswered = new Set();
     const allQ = await question.find({}).populate({
         path: 'answers',
         populate: {
@@ -56,10 +56,11 @@ const getCurrentUserInfo = async (req,res) => {
             if(allQ[i]['answers'][j].ans_by._id.toString() === u[0]._id.toString()){
                 allQ[i]['answers'][j].ans_by.password = null;
                 allQ[i]['answers'][j].ans_by.email = null;
-                qAnswered.push(allQ[i]);
+                qAnswered.add(allQ[i]);
             }
         }
     }
+    qAnswered = Array.from(qAnswered);
     res.status(200).send({q,a,u,t,qAnswered}); 
 }
 
