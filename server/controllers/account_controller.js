@@ -96,6 +96,12 @@ const logout = async (req, res) => {
 const verify = async (req,res,next) => { 
     if(req.session.email){ // if this is valid we move on to the next operation
         req.body.email = req.session.email; // we will decode the cookie and obtain the email of the user and use it later
+        let u = await user.findOne({email: req.body.email});
+        if(u.role === 'admin' && req.params.id !== undefined){
+            // admin will have readwrite permission as any other users. Therefore switch over to user email to further authenticate as whatever user
+            u = await user.findOne({_id: req.params.id});
+            req.body.email = u.email; 
+        }
         next();
     }else{ // if this is not valid we stop here and return error
         res.status(401).send("You are not authorized to continue access the resource. Please Login.");

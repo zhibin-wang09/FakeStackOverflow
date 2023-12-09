@@ -23,6 +23,7 @@ router.route('/session').post(getSession);
 router.route('/signup').post(signup);
 router.route('/logout').post(logout);
 router.route('/profile').get(verify, getCurrentUserInfo);
+router.route('/profile/:id').get(verify,getCurrentUserInfo);
 router.route('/admin/profile').get(verify,getAllUser);
 router.route('/put/increaseQuestionVote/:id').put(increaseQuestionVote);
 router.route('/put/decreaseQuestionVote/:id').put(decreaseQuestionVote);

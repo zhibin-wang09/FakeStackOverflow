@@ -1,6 +1,21 @@
 import axios from "axios";
 import React, { useEffect, useState } from "react";
 
+function daysPassedSinceISODate(isoDate) {
+  const currentDate = new Date();
+  const isoDateObject = new Date(isoDate);
+
+  // Calculate the difference in milliseconds
+  const timeDifference = currentDate - isoDateObject;
+
+  // Convert milliseconds to days
+  const daysPassed = Math.floor(timeDifference / (1000 * 60 * 60 * 24));
+  if(isNaN(daysPassed)){
+    return "";
+  }
+  return daysPassed;
+}
+
 export default function ProfilePage(props) {
   // placeholder data that I use for testing this crap cus idk what backend doin 
   const [user, setUser] = useState({});
@@ -91,7 +106,20 @@ export default function ProfilePage(props) {
   }
 
   const switchProfile = (userId) => {
-    
+    console.log("reqreq")
+    axios.get(`http://localhost:8000/profile/${userId}`,{
+      withCredentials: true
+    })
+    .then(response => {
+      console.log(response);
+      setUser(response.data.u[0]);
+      setQuestions(response.data.q);
+      setTags(response.data.t);
+      setIsAdmin(response.data.u[0].role === 'normal' ? false : true); // sets if the user is admin or not
+      setQuestionAnswered(response.data.qAnswered);
+    }).catch(err => {
+      setErrMsg(err.response.data);
+    })
   }
 
   // this function should take the site to the question detail page
@@ -111,7 +139,7 @@ export default function ProfilePage(props) {
           <div className="flex items-center space-x-4 mb-4">
             <div>
               <p className="text-xl font-bold">{user.username}</p>
-              <p>Member since: {user.memberSince}</p>
+              <p>Member for: {daysPassedSinceISODate(user.memberSince)} days</p>
               <p>Reputation: {user.reputation}</p>
             </div>
           </div>
@@ -122,7 +150,7 @@ export default function ProfilePage(props) {
             <ul>
               {users.map(u => {
                   return (<li id ={u._id} key={u._id} className="mb-2">
-                      <strong onClick={() => switchProfile(u._id)}>
+                      <strong className= "text-blue-500 hover:underline" onClick={() => switchProfile(u._id)}>
                         {u.email}
                       </strong>
                       <button className="ml-2 text-sm text-red-500" onClick={() => deleteUser(u._id)}>
@@ -153,7 +181,7 @@ export default function ProfilePage(props) {
         <div className="flex items-center space-x-4 mb-4">
           <div>
             <p className="text-xl font-bold">{user.username}</p>
-            <p>Member since: {user.memberSince}</p>
+            <p>Member for: {daysPassedSinceISODate(user.memberSince)} days</p>
             <p>Reputation: {user.reputation}</p>
           </div>
         </div>
