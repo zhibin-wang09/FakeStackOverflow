@@ -68,7 +68,8 @@ function userCreate(username, password,email){
         username: username,
         password: password,
         email: email,
-        role: 'normal'
+        role: 'normal',
+        reputation: 50,
     }
     let user = new User(userdetail)
     return user.save()

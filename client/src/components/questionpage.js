@@ -9,11 +9,12 @@ export default function QuestionPage({ handlePageChange, currQuestionId, userId}
   const [askedBy, setAskedBy] = useState("");
   const [question, setQuestion] = useState([]);
   const [startIndex, setStartIndex] = useState(0);
-  const [comment, setComment] = useState("");
+  const [comment] = useState("");
   const [errorMsg, setErrorMsg] = useState("");
-  const [showQuestionPopup, setShowQuestionPopup] = useState(false);
-  const [showAnswerPopup, setShowAnswerPopup] = useState(false);
   const [errMsg, setErrMsg] = useState('');
+  const [questionComment, setQuestionComment] = useState("");
+  const [answerComments, setAnswerComments] = useState({});
+
 
   useEffect(() => {
     const fetchData = async () => {
@@ -54,102 +55,102 @@ export default function QuestionPage({ handlePageChange, currQuestionId, userId}
 
   const displayAnswers = answers.slice(startIndex, startIndex + 5);
 
-  const renderComments = (comments) => {
+  const renderComments = (comments, targetId, isQuestion) => {
     if (!comments || comments.length === 0) {
       return <div>No comments available</div>; // Placeholder for no comments
     }
-
+  
     return comments.map((comment) => (
       <div key={comment._id} className="ml-8 mt-2 text-gray-600">
-        <strong className="text-gray-500 mt-1">Votes: {comment.votes} -</strong> {comment.text}
+        <div className="flex items-center space-x-2">
+          <button className="text-blue-500 hover:text-blue-400" onClick={() => handleCommentUpvote(comment._id)}>
+            Upvote
+          </button>
+          <button className="text-red-500 hover:text-red-400" onClick={() => handleCommentDownvote(comment._id)}>
+            Downvote
+          </button>
+          <strong className="text-gray-500">Votes: {comment.votes} -</strong> {comment.text}
+        </div>
       </div>
     ));
   };
 
-
-  const renderCommentButton = (answerId) => { // type represent if we pressing the button we should post to question(!) or answer(2)
+  const handleCommentUpvote = (commentId) => {
+    // todo
+  };
+  
+  // Function to handle comment downvote
+  const handleCommentDownvote = (commentId) => {
+    // todo
+  };
+  
+  const renderCommentForm = (targetId, isQuestion) => {
+    // Function to handle adding comment based on targetId
     const handleAddComment = () => {
-      // if comment more than 140 characters, show error
+      // Check comment length
       if (comment.length > 140) {
-        setErrorMsg("Comment should be 50 characters or less.");
+        setErrorMsg("Comment should be 140 characters or less.");
         return;
       }
-      /**
-       * add comment can't distinguish between question and answer
-       */
-      if(!answerId){
-        console.log("question");
-        axios.post(`http://localhost:8000/post/commentToQuestion/${currQuestionId}`,{
-          text: comment
-        },{
-          withCredentials: true
-        }).then(res => {
-          setShowPopup(false);
-          setComment("");
+  
+      // Determine the API endpoint based on whether it's the main question or an answer
+      const endpoint = isQuestion
+        ? `http://localhost:8000/post/commentToQuestion/${targetId}`
+        : `http://localhost:8000/post/commentToAnswer/${targetId}`;
+  
+      // Make API call to post comment to the specific target
+      axios
+        .post(
+          endpoint,
+          { text: isQuestion ? questionComment : answerComments[targetId] },
+          { withCredentials: true }
+        )
+        .then((res) => {
+          // Update state or perform necessary actions upon successful comment addition
+          if (isQuestion) {
+            setQuestionComment("");
+          } else {
+            setAnswerComments({ ...answerComments, [targetId]: "" });
+          }
           setErrorMsg("");
-        }).catch(err => {
-          alert(err.response.data);
         })
-      }else if(answerId){
-        console.log("answer");
-        axios.post(`http://localhost:8000/post/commentToAnswer/${answerId}`,{
-          text:comment
-        },{
-          withCredentials: true
-        }).then(res => {
-
-          setShowPopup(false);
-          setComment("");
-          setErrorMsg("");
-        }).catch(err => {
+        .catch((err) => {
           alert(err.response.data);
-        })
-      }
-
+        });
     };
-
-        // Separate handling for question and answer comment popups
-        const showPopup = answerId ? showAnswerPopup : showQuestionPopup;
-        const setShowPopup = answerId ? setShowAnswerPopup : setShowQuestionPopup;
+  
+    // Determine the value and change handler based on whether it's the main question or an answer
+    const handleChange = (e) => {
+      if (isQuestion) {
+        setQuestionComment(e.target.value);
+      } else {
+        setAnswerComments({ ...answerComments, [targetId]: e.target.value });
+      }
+    };
   
     return (
-      <div className="relative">
-        <button className="text-gray-500 mt-2 underline ml-8" onClick={() => setShowPopup(true)}>
-          Add a comment
-        </button>
-        {showPopup && (
-          <div className="fixed inset-0 flex items-center justify-center z-10">
-            <div className="absolute inset-0 bg-gray-900 opacity-50"></div>
-            <div className="absolute inset-0 flex items-center justify-center">
-              <div className="bg-white rounded-lg p-4 shadow-md">
-                <textarea
-                  className="w-full h-24 p-2 mb-2 border border-gray-300 rounded"
-                  placeholder="Enter your comment..."
-                  value={comment}
-                  onChange={(e) => setComment(e.target.value)}
-                ></textarea>
-                {errorMsg && <div className="text-red-500">{errorMsg}</div>}
-                <div className="flex justify-end">
-                  <button
-                    className="bg-blue-500 hover:bg-blue-400 text-white font-bold py-2 px-4 rounded"
-                    onClick={handleAddComment}
-                  >
-                    Add Comment
-                  </button>
-                  <button
-                    className="bg-gray-300 hover:bg-gray-200 text-gray-700 font-bold py-2 px-4 rounded ml-2"
-                    onClick={() => setShowPopup(false)}
-                  >
-                    Cancel
-                  </button>
-                </div>
-              </div>
-            </div>
-          </div>
-        )}
-      </div>
+      <form className="mt-2 ml-8" onSubmit={(e) => e.preventDefault()}>
+        <textarea
+          className="w-full h-24 p-2 mb-2 border border-gray-300 rounded"
+          placeholder="Enter your comment..."
+          value={isQuestion ? questionComment : answerComments[targetId]}
+          onChange={handleChange}
+        ></textarea>
+        {errorMsg && <div className="text-red-500">{errorMsg}</div>}
+        <div className="flex justify-end">
+          <button
+            type="button"
+            className="bg-blue-500 hover:bg-blue-400 text-white font-bold py-2 px-4 rounded"
+            onClick={handleAddComment}
+          >
+            Add Comment
+          </button>
+        </div>
+      </form>
     );
   };
+  
+  
 
   const handleQuestionUpvote = (e) => {
     setErrMsg("");
@@ -233,10 +234,10 @@ export default function QuestionPage({ handlePageChange, currQuestionId, userId}
             <div className="text-gray-500 mt-1">Votes: {question.votes}</div>
           </div>
           <div className="mt-4">
-            <h3 className="text-lg font-semibold mb-2">Comments:</h3>
-            {renderComments(question.comment)}
-            {renderCommentButton()}
-          </div>
+          <h3 className="text-lg font-semibold mb-2">Comments:</h3>
+          {renderComments(question.comment, question._id, true)}
+          {renderCommentForm(question._id, true)}
+        </div>
       </div>
 
       {displayAnswers.map((answer) => (
@@ -264,10 +265,10 @@ export default function QuestionPage({ handlePageChange, currQuestionId, userId}
             <div className="text-gray-500 mt-1">Votes: {answer.votes}</div>
           </div>
           <div className="mt-4">
-            <h3 className="text-lg font-semibold mb-2">Comments:</h3>
-            {renderComments(answer.comment)}
-            {renderCommentButton(answer._id)}
-          </div>
+      <h3 className="text-lg font-semibold mb-2">Comments:</h3>
+        {renderComments(answer.comment)}
+        {renderCommentForm(answer._id)}
+      </div>
         </div>
       ))}
 
