@@ -1,62 +1,63 @@
 import axios from "axios";
 import React, { useEffect, useState } from "react";
-import { sortByTime } from "../sort";
 
 function daysPassedSinceISODate(isoDate) {
   const currentDate = new Date();
   const isoDateObject = new Date(isoDate);
 
-  // Calculate the difference in milliseconds
   const timeDifference = currentDate - isoDateObject;
-
-  // Convert milliseconds to days
   const daysPassed = Math.floor(timeDifference / (1000 * 60 * 60 * 24));
-  if(isNaN(daysPassed)){
+  if (isNaN(daysPassed)) {
     return "";
   }
   return daysPassed;
 }
 
 export default function ProfilePage(props) {
-  // placeholder data that I use for testing this crap cus idk what backend doin 
   const [user, setUser] = useState({});
   const [questionAnswered, setQuestionAnswered] = useState([]);
   const [questions, setQuestions] = useState([]);
-  const [tags,setTags] = useState([]);
+  const [tags, setTags] = useState([]);
   const [errMsg, setErrMsg] = useState("");
   const [isAdmin, setIsAdmin] = useState(false);
   const [users, setUsers] = useState([]);
-  const [popUp, setPopUp] = useState(false);
+  const [deletePopups, setDeletePopups] = useState({}); // State for delete popups
 
   useEffect(() => {
     setErrMsg("");
-    axios.get('http://localhost:8000/profile',{
+    axios.get('http://localhost:8000/profile', {
       withCredentials: true
     })
-    .then(response => {
-      setUser(response.data.u[0]);
-      setQuestions(response.data.q);
-      setTags(response.data.t);
-      setIsAdmin(response.data.u[0].role === 'normal' ? false : true); // sets if the user is admin or not
-      setQuestionAnswered(response.data.qAnswered.sort(sortByTime()));
-    }).catch(err => {
-      setErrMsg(err.response.data);
-    })
-  },[])
+      .then(response => {
+        setUser(response.data.u[0]);
+        setQuestions(response.data.q);
+        setTags(response.data.t);
+        setIsAdmin(response.data.u[0].role === 'normal' ? false : true);
+        setQuestionAnswered(response.data.qAnswered);
+      }).catch(err => {
+        setErrMsg(err.response.data);
+      })
+  }, [])
 
   useEffect(() => {
-    if(!isAdmin){
+    if (!isAdmin) {
       return;
     }
     setErrMsg("");
-    axios.get('http://localhost:8000/admin/profile',{
+    axios.get('http://localhost:8000/admin/profile', {
       withCredentials: true
     }).then(res => {
       setUsers(res.data);
+      setDeletePopups(
+        res.data.reduce((acc, user) => {
+          acc[user._id] = false; // Initialize delete popups for each user
+          return acc;
+        }, {})
+      );
     }).catch(err => {
-      console.log("error" ,err)
+      console.log("error", err)
     })
-  },[isAdmin])
+  }, [isAdmin])
 
   const editQuestion = (questionId) => {
     // change the display container page to edit-question
@@ -96,18 +97,22 @@ export default function ProfilePage(props) {
     })
   };
 
-
-  const deleteUser = (e) => {
-    console.log(e.target.id)
-    // axios.post(`http://localhost:8000/post/deleteUser/${e.target.id}`, {},{
-    //   withCredentials: true
-    // }).then(res => {
-    //   setUsers(res.data);
-    //   setPopUp(false);
-    // }).catch(err => {
-    //   console.log(err.response.data);
-    // })
+  const deleteUser = (userId) => {
+    axios.post(`http://localhost:8000/post/deleteUser/${userId}`, {}, {
+      withCredentials: true
+    })
+      .then(res => {
+        setUsers(res.data);
+        setDeletePopups(prevState => {
+          const updatedPopups = { ...prevState };
+          delete updatedPopups[userId]; // Remove the user's delete popup state from the object
+          return updatedPopups;
+        });
+      }).catch(err => {
+        console.log(err.response.data);
+      })
   }
+
 
   const switchProfile = (userId) => {
     console.log("reqreq")
@@ -130,14 +135,13 @@ export default function ProfilePage(props) {
   const toQuestionDetail = (questionId) => {
     props.handlePageChange({target : {id: 'detail'}, id: user._id.toString(), questionId : questionId})
   }
-
   const renderAlert = (userId) => {
     return (
       <>
-        <button className="ml-2 text-sm text-red-500" onClick={() => setPopUp(true)}>
-                        Delete
-          </button>
-          {popUp &&  (
+        <button className="ml-2 text-sm text-red-500" onClick={() => setDeletePopups(prevState => ({ ...prevState, [userId]: true }))}>
+          Delete
+        </button>
+        {deletePopups[userId] && (
           <div className="fixed inset-0 flex items-center justify-center z-10">
             <div className="absolute inset-0 bg-gray-900 opacity-50"></div>
             <div className="absolute inset-0 flex items-center justify-center">
@@ -146,25 +150,25 @@ export default function ProfilePage(props) {
                 <div className="flex justify-end">
                   <button
                     className="bg-blue-500 hover:bg-blue-400 text-white font-bold py-2 px-4 rounded"
-                    id = {userId}
-                    onClick={deleteUser}
+                    onClick={() => deleteUser(userId)}
                   >
                     Yes
                   </button>
                   <button
                     className="bg-gray-300 hover:bg-gray-200 text-gray-700 font-bold py-2 px-4 rounded ml-2"
-                    onClick={() => setPopUp(false)}
+                    onClick={() => setDeletePopups(prevState => ({ ...prevState, [userId]: false }))}
                   >
                     Cancel
                   </button>
                 </div>
               </div>
             </div>
-          </div>)}
+          </div>
+        )}
       </>
-
-    )
-  }
+    );
+  };
+  
 
   const renderAdminInfo = () => {
     return (
@@ -191,7 +195,7 @@ export default function ProfilePage(props) {
                       <strong className= "text-blue-500 hover:underline" onClick={() => switchProfile(u._id)}>
                         {u.email}
                       </strong>
-                      {renderAlert(u._id)}
+                      {renderAlert(u._id, u.email)}
                   </li>)
                 })
               }
