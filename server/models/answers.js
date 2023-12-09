@@ -5,8 +5,10 @@ var Schema = mongoose.Schema;
 
 var answerSchema = new Schema({
     text: {type: String, required:true},
-    ans_by: {type:String, required: true},
+    ans_by: {type: Schema.Types.ObjectId, ref: 'User'},
     ans_date_time: {type:Date, default: Date.now},
+    votes: {type:Number, default: 0},
+    comment: [{type: Schema.Types.ObjectId, ref : 'Comment'}]
 }, {
     virtuals:{
         url:{

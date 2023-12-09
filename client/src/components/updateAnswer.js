@@ -1,11 +1,20 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import TextArea from './textarea';
 import axios from 'axios'; // Import Axios
 
-export default function PostAnswer(props) {
+export default function UpdateAnswer(props) {
     const [questionText, setQuestionText] = useState("");
     const [submitted, setSubmitted] = useState(false);
     const [errorMsg, setErrorMsg] = useState('');
+
+    useEffect(() => {
+        axios.get(`http://localhost:8000/get/answer/${props.questionId}`)
+        .then(response => {
+            setQuestionText(response.data.text);
+        }).catch(error => {
+            console.log(error);
+        })
+    }, [props.questionId])
 
     const handleSubmit = (e) => {
         e.preventDefault();
@@ -14,7 +23,7 @@ export default function PostAnswer(props) {
 
         if (trimmedQuestionText !== "") {
             // Post answer to backend
-            axios.post(`http://localhost:8000/post/answer/${props.currQuestionId}`, {
+            axios.put(`http://localhost:8000/put/modifyAnswer/${props.questionId}`, {
                 text: trimmedQuestionText,
             },{
                 withCredentials: true
@@ -23,7 +32,7 @@ export default function PostAnswer(props) {
                 // Handle successful post
                 // You can also update the UI or redirect the user as needed
                             // Go back to main page
-                props.handlePageChange({target: {id :'detail'}, questionId: props.currQuestionId});
+                props.handlePageChange({target: {id: 'profile-page'}});
                 // Reset form fields
                 setQuestionText("");
             })
@@ -51,7 +60,7 @@ export default function PostAnswer(props) {
                 
                     <button type="submit"
                         className="bg-blue-700 hover:bg-blue-800 text-white text-xs font-medium py-2 px-4 rounded-lg focus:ring-4 focus:ring-blue-200 focus:ring-opacity-50">
-                        Post Answer
+                        Edit Answer
                     </button>
                 </form>
             </div>

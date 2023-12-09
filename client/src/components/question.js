@@ -23,7 +23,7 @@ export default function Question(props) {
             </div>
             <div className="text-gray-600 text-sm flex items-center mt-2">
                 <span className="text-gray-600">
-                    Posted by: {props.askedBy}
+                    Posted by: {props.askedBy.username}
                 </span>
                 <span>
                     • {formatTimeSince(props.askDate)}

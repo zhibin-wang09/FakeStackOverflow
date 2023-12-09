@@ -1,19 +1,38 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import axios from 'axios';
 import ShortInput from './short_input';
 import TextArea from './textarea';
 import extractLinks from '../processInput';
 
-export default function AskQuestion(props) {
-    const [title, setTitle] = useState("");
-    const [questionText, setQuestionText] = useState("");
+export default function UpdateQuestion( {questionId, handlePageChange}) {
+    const [title, setTitle] = useState('');
+    const [questionText, setQuestionText] = useState('');
+
     const [tags, setTags] = useState("");
     const [submitted, setSubmitted] = useState(false);
     const [isTitleMoreThan100Char, setIsTitleMoreThan100char] = useState(false);
     const [isMoreThan5Tags, setIsMoreThan5Tags] = useState(false);
     const [isEachTagMoreThan10Char, setIsEachTagMoreThan10Char] = useState(false);
     const [isInvalidHyperlink, setIsInvAlidHyperLink] = useState(false);
-    const [errorMsg, setErrorMsg] = useState('');
+
+    useEffect(() => {
+        console.log(questionId);
+        axios.get(`http://localhost:8000/get/questions/${questionId}`)
+            .then((response) => {
+                const { title, text,tags } = response.data;
+                setTitle(title);
+                setQuestionText(text);
+                let tagsString = ""; // convert tag array into string
+                for(const i in tags){
+                    tagsString = tagsString.concat(tags[i].name + " "); // append the names to the string
+                }
+                if(tagsString.length !== 0) tagsString = tagsString.slice(0,tagsString.length -1); // remove the last space
+                setTags(tagsString); // set the tag
+            })
+            .catch((error) => {
+                console.error('Error fetching question:', error);
+            });
+    }, [questionId]);
 
     const handleSubmit = (e) => {
         e.preventDefault();
@@ -22,7 +41,6 @@ export default function AskQuestion(props) {
         let tagsarr = tags.toLowerCase().trim().split(" ");
         let titlet = title.trim();
         let text = questionText.trim();
-        setErrorMsg('');
 
         // Validation checks
         let isTitleValid = titlet.length <= 100;
@@ -39,31 +57,24 @@ export default function AskQuestion(props) {
         }
 
         if (titlet && text && tagsarr.length) {
-            // Post question to backend
-            axios.post('http://localhost:8000/post/questions', {
-                title: titlet,
+            axios.put(`http://localhost:8000/put/modifyQuestion/${questionId}`,{
                 text: text,
-                tags: tagsarr,
+                title: titlet,
+                tags, tagsarr
             },{
                 withCredentials: true
+            }).then(response => {
+                console.log(response);
+                handlePageChange({target: {id: 'profile-page'}});
+            }).catch(err => {
+                console.log(err);
             })
-            .then(response => {
-                // Handle successful post
-                setTitle("");
-                setQuestionText("");
-                setTags("");
-                props.backToQuestions(); // Adjust as needed
-            })
-            .catch(error => {
-                setErrorMsg(error.response.data);
-            });
         }
     };
 
     return (
         <div className="w-5/6 mt-4 ">
             <div className="mx-8">
-                <strong className='text-rose-600'>{errorMsg}</strong>
                 <form id="post-question-form" action="#" className="space-y-4" onSubmit={handleSubmit}>
                 <ShortInput
                     label="Question Title* (100 characters or less)"
@@ -95,7 +106,7 @@ export default function AskQuestion(props) {
                 />
                     <button type="submit"
                         className="bg-blue-700 hover:bg-blue-800 text-white text-xs font-medium py-2 px-4 rounded-lg focus:ring-4 focus:ring-blue-200 focus:ring-opacity-50">
-                        Post Question
+                        Edit Question
                     </button>
                 </form>
             </div>
