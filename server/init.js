@@ -71,7 +71,7 @@ async function userCreate(username, password,email){
         password: hashpass,
         email: email,
         role: 'normal',
-        reputation: 50
+        reputation: 50,
     }
     let user = new User(userdetail)
     return user.save()
