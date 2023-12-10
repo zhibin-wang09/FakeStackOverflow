@@ -23,7 +23,7 @@ const signup = async (req, res) => {
     }
     const salt = await bcrypt.genSalt(saltRound); // generate the hashing key
     const hashpass = await bcrypt.hash(password, salt); // hash the password
-    await user.create({username: username, password: hashpass, email: email}); // store in database
+    await user.create({username: username, password: hashpass, email: email,reputation: 50}); // store in database
     res.status(200).send("Account created successfully"); 
 }
 
@@ -43,7 +43,7 @@ const getCurrentUserInfo = async (req,res) => {
         }
     }
     t = tagarr
-    const qAnswered = [];
+    let qAnswered = new Set();
     const allQ = await question.find({}).populate({
         path: 'answers',
         populate: {
@@ -56,10 +56,11 @@ const getCurrentUserInfo = async (req,res) => {
             if(allQ[i]['answers'][j].ans_by._id.toString() === u[0]._id.toString()){
                 allQ[i]['answers'][j].ans_by.password = null;
                 allQ[i]['answers'][j].ans_by.email = null;
-                qAnswered.push(allQ[i]);
+                qAnswered.add(allQ[i]);
             }
         }
     }
+    qAnswered = Array.from(qAnswered);
     res.status(200).send({q,a,u,t,qAnswered}); 
 }
 
@@ -97,7 +98,7 @@ const verify = async (req,res,next) => {
     if(req.session.email){ // if this is valid we move on to the next operation
         req.body.email = req.session.email; // we will decode the cookie and obtain the email of the user and use it later
         let u = await user.findOne({email: req.body.email});
-        if(u.role === 'admin' && req.params.id !== undefined && req.path.includes("/profile")){
+        if(u && u.role === 'admin' && req.params.id !== undefined && req.path.includes("/profile")){
             // admin will have readwrite permission as any other users. Therefore switch over to user email to further authenticate as whatever user
             u = await user.findOne({_id: req.params.id});
             req.body.email = u.email; 
@@ -115,7 +116,7 @@ const getAllUser = async (req,res) => {
         res.status(401).send("You are not admin. Can not get user information");
         return;
     }
-    const u = await user.find({email: {$ne : email}});
+    const u = await user.find({});
     res.status(200).send(u);
 }
 

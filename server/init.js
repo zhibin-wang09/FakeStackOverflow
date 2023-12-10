@@ -57,18 +57,21 @@ async function adminCreate(username, password, email){
         email: email,
         role: 'admin',
         reputation: 10000,
-        date: new Date()
+        date: new Date(),
     }
     let user = new User(userdetail)
     return user.save()
 }
 
-function userCreate(username, password,email){
+async function userCreate(username, password,email){
+  const salt = await bcrypt.genSalt(saltRound); // generate the hashing key
+  const hashpass = await bcrypt.hash(password, salt); // hash the password
   userdetail = {
         username: username,
-        password: password,
+        password: hashpass,
         email: email,
-        role: 'normal'
+        role: 'normal',
+        reputation: 50,
     }
     let user = new User(userdetail)
     return user.save()

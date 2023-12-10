@@ -3,17 +3,39 @@ import axios from 'axios';
 import formatTimeSince from "../formattime";
 import extractLinks from "../processInput.js";
 
+function sortByTimeAnswer(){
+  let sorttime = (a, b) => {
+      let currentTime = new Date();
+      let aDif = currentTime - new Date(a.ans_date_time);
+      let bDif = currentTime - new Date(b.ans_date_time);
+      return aDif - bDif;
+  }
+  return sorttime
+}
+
+function sortByTimeComment(){
+  let sorttime = (a, b) => {
+    let currentTime = new Date();
+    let aDif = currentTime - new Date(a.date);
+    let bDif = currentTime - new Date(b.date);
+    return aDif - bDif;
+}
+return sorttime
+}
+
 
 export default function QuestionPage({ handlePageChange, currQuestionId, userId}) {
   const [answers, setAnswers] = useState([]);
   const [askedBy, setAskedBy] = useState("");
   const [question, setQuestion] = useState([]);
   const [startIndex, setStartIndex] = useState(0);
-  const [comment, setComment] = useState("");
+  const [comment] = useState("");
   const [errorMsg, setErrorMsg] = useState("");
-  const [showQuestionPopup, setShowQuestionPopup] = useState(false);
-  const [showAnswerPopup, setShowAnswerPopup] = useState(false);
   const [errMsg, setErrMsg] = useState('');
+  const [questionComment, setQuestionComment] = useState("");
+  const [page, setPage] = useState(0);
+  const [answerComments, setAnswerComments] = useState({});
+
 
   useEffect(() => {
     const fetchData = async () => {
@@ -27,6 +49,7 @@ export default function QuestionPage({ handlePageChange, currQuestionId, userId}
               answers.push(u);
             }
           })
+          answers.sort(sortByTimeAnswer());
           res.data.answers.forEach(u => {
             if(u.ans_by._id.toString() !== userId){
               answers.push(u);
@@ -54,102 +77,162 @@ export default function QuestionPage({ handlePageChange, currQuestionId, userId}
 
   const displayAnswers = answers.slice(startIndex, startIndex + 5);
 
-  const renderComments = (comments) => {
+  const renderComments = (comments, targetId, isQuestion) => {
+    const commentsPerPage = 3;  
     if (!comments || comments.length === 0) {
       return <div>No comments available</div>; // Placeholder for no comments
     }
-
-    return comments.map((comment) => (
-      <div key={comment._id} className="ml-8 mt-2 text-gray-600">
-        <strong className="text-gray-500 mt-1">Votes: {comment.votes} -</strong> {comment.text}
-      </div>
-    ));
-  };
-
-
-  const renderCommentButton = (answerId) => { // type represent if we pressing the button we should post to question(!) or answer(2)
-    const handleAddComment = () => {
-      // if comment more than 140 characters, show error
-      if (comment.length > 140) {
-        setErrorMsg("Comment should be 50 characters or less.");
-        return;
-      }
-      /**
-       * add comment can't distinguish between question and answer
-       */
-      if(!answerId){
-        console.log("question");
-        axios.post(`http://localhost:8000/post/commentToQuestion/${currQuestionId}`,{
-          text: comment
-        },{
-          withCredentials: true
-        }).then(res => {
-          setShowPopup(false);
-          setComment("");
-          setErrorMsg("");
-        }).catch(err => {
-          alert(err.response.data);
-        })
-      }else if(answerId){
-        console.log("answer");
-        axios.post(`http://localhost:8000/post/commentToAnswer/${answerId}`,{
-          text:comment
-        },{
-          withCredentials: true
-        }).then(res => {
-
-          setShowPopup(false);
-          setComment("");
-          setErrorMsg("");
-        }).catch(err => {
-          alert(err.response.data);
-        })
-      }
-
+    comments = comments.sort(sortByTimeComment());
+    const totalPages = Math.ceil(comments.length / commentsPerPage);
+    const start = page * commentsPerPage;
+    const end = start + commentsPerPage;
+  
+    const paginatedComments = comments.slice(start, end);
+  
+    const handleNextPage = () => {
+      setPage(page + 1);
     };
-
-        // Separate handling for question and answer comment popups
-        const showPopup = answerId ? showAnswerPopup : showQuestionPopup;
-        const setShowPopup = answerId ? setShowAnswerPopup : setShowQuestionPopup;
+  
+    const handlePrevPage = () => {
+      setPage(page - 1);
+    };
   
     return (
-      <div className="relative">
-        <button className="text-gray-500 mt-2 underline ml-8" onClick={() => setShowPopup(true)}>
-          Add a comment
-        </button>
-        {showPopup && (
-          <div className="fixed inset-0 flex items-center justify-center z-10">
-            <div className="absolute inset-0 bg-gray-900 opacity-50"></div>
-            <div className="absolute inset-0 flex items-center justify-center">
-              <div className="bg-white rounded-lg p-4 shadow-md">
-                <textarea
-                  className="w-full h-24 p-2 mb-2 border border-gray-300 rounded"
-                  placeholder="Enter your comment..."
-                  value={comment}
-                  onChange={(e) => setComment(e.target.value)}
-                ></textarea>
-                {errorMsg && <div className="text-red-500">{errorMsg}</div>}
-                <div className="flex justify-end">
-                  <button
-                    className="bg-blue-500 hover:bg-blue-400 text-white font-bold py-2 px-4 rounded"
-                    onClick={handleAddComment}
-                  >
-                    Add Comment
-                  </button>
-                  <button
-                    className="bg-gray-300 hover:bg-gray-200 text-gray-700 font-bold py-2 px-4 rounded ml-2"
-                    onClick={() => setShowPopup(false)}
-                  >
-                    Cancel
-                  </button>
-                </div>
-              </div>
+      <div>
+        {paginatedComments.map((comment) => (
+          <div key={comment._id} className="ml-8 mt-2 text-gray-600">
+            <div className="flex items-center space-x-2">
+              <button className="text-blue-500 hover:text-blue-400" onClick={() => handleCommentUpvote(comment._id, targetId, isQuestion)}>
+                Upvote
+              </button>
+              <strong className="text-gray-500">Votes: {comment.votes} -</strong>  
+              <div> {comment.text} </div>
             </div>
           </div>
-        )}
+        ))}
+    
+        {/* Pagination buttons */}
+        <div className="flex justify-center">
+          <button
+            className="bg-blue-500 hover:bg-blue-400 text-white font-bold py-2 px-4 border-b-1 border-blue-700 hover:border-blue-500 rounded mx-2"
+            onClick={handlePrevPage}
+            disabled={page === 0}
+          >
+            Prev
+          </button>
+          <button
+            className="bg-blue-500 hover:bg-blue-400 text-white font-bold py-2 px-4 border-b-1 border-blue-700 hover:border-blue-500 rounded mx-2"
+            onClick={handleNextPage}
+            disabled={page === totalPages - 1}
+          >
+            Next
+          </button>
+        </div>
       </div>
+    );    
+  };
+  
+  
+
+  const handleCommentUpvote = (commentId,targetId,isQuestion) => {
+    axios.post(`http://localhost:8000/post/increaseCommentVote/${commentId}`,{
+      id: targetId,
+      isQuestion: isQuestion
+    },{
+      withCredentials: true
+    }).then(res => {
+      if(isQuestion){
+        setQuestion(res.data);
+      }else{
+        setAnswers(answers.map(a => {
+          if(a._id === res.data._id){
+            return res.data;
+          }else{
+            return a;
+          }
+        }))
+      }
+    }).catch(err => {
+      setErrMsg(err.response.data);
+    })
+  };
+  
+  
+  const renderCommentForm = (targetId, isQuestion) => {
+    // Function to handle adding comment based on targetId
+    const handleAddComment = () => {
+      // Check comment length
+      if (comment.length > 140) {
+        setErrorMsg("Comment should be 140 characters or less.");
+        return;
+      }
+  
+      // Determine the API endpoint based on whether it's the main question or an answer
+      const endpoint = isQuestion
+        ? `http://localhost:8000/post/commentToQuestion/${targetId}`
+        : `http://localhost:8000/post/commentToAnswer/${targetId}`;
+  
+      // Make API call to post comment to the specific target
+      axios
+        .post(
+          endpoint,
+          { text: isQuestion ? questionComment : answerComments[targetId] },
+          { withCredentials: true }
+        )
+        .then((res) => {
+          // Update state or perform necessary actions upon successful comment addition
+          if (isQuestion) {
+            setQuestion(res.data);
+            setQuestionComment("");
+          } else {
+            setAnswerComments({ ...answerComments, [targetId]: "" });
+            setAnswers(answers.map(a => {
+            if(a._id === res.data._id){
+              return res.data;
+            }else{
+              return a;
+            }
+          }))
+          }
+          setErrorMsg("");
+        })
+        .catch((err) => {
+          alert(err.response.data);
+        });
+    };
+  
+    // Determine the value and change handler based on whether it's the main question or an answer
+    const handleChange = (e) => {
+      if (isQuestion) {
+        setQuestionComment(e.target.value);
+      } else {
+        setAnswerComments({ ...answerComments, [targetId]: e.target.value });
+      }
+    };
+  
+    return (
+      <form className="mt-2 ml-8" onSubmit={(e) => e.preventDefault()}>
+        <textarea
+          className="w-full h-24 p-2 mb-2 border border-gray-300 rounded"
+          placeholder="Enter your comment..."
+          value={isQuestion ? questionComment : answerComments[targetId]}
+          onChange={handleChange}
+        ></textarea>
+        {errorMsg && <div className="text-red-500">{errorMsg}</div>}
+        <div className="flex justify-end">
+          <button
+            type="button"
+            className="bg-blue-500 hover:bg-blue-400 text-white font-bold py-2 px-4 rounded"
+            onClick={handleAddComment}
+          >
+            Add Comment
+          </button>
+        </div>
+      </form>
     );
   };
+  
+  
 
   const handleQuestionUpvote = (e) => {
     setErrMsg("");
@@ -214,7 +297,7 @@ export default function QuestionPage({ handlePageChange, currQuestionId, userId}
 
   return (
     <div>
-      <strong>{errMsg}</strong>
+      <strong className="text-rose-600">{errMsg}</strong>
       <div className="bg-gray-100 rounded-lg p-4 shadow-md mb-4 mx-8">
         <div className="flex justify-between items-center">
           <div className="flex items-center space-x-2">
@@ -233,10 +316,10 @@ export default function QuestionPage({ handlePageChange, currQuestionId, userId}
             <div className="text-gray-500 mt-1">Votes: {question.votes}</div>
           </div>
           <div className="mt-4">
-            <h3 className="text-lg font-semibold mb-2">Comments:</h3>
-            {renderComments(question.comment)}
-            {renderCommentButton()}
-          </div>
+          <h3 className="text-lg font-semibold mb-2">Comments:</h3>
+          {renderComments(question.comment, question._id, true)}
+          {renderCommentForm(question._id, true)}
+        </div>
       </div>
 
       {displayAnswers.map((answer) => (
@@ -264,10 +347,10 @@ export default function QuestionPage({ handlePageChange, currQuestionId, userId}
             <div className="text-gray-500 mt-1">Votes: {answer.votes}</div>
           </div>
           <div className="mt-4">
-            <h3 className="text-lg font-semibold mb-2">Comments:</h3>
-            {renderComments(answer.comment)}
-            {renderCommentButton(answer._id)}
-          </div>
+      <h3 className="text-lg font-semibold mb-2">Comments:</h3>
+        {renderComments(answer.comment, answer._id, false)}
+        {renderCommentForm(answer._id)}
+      </div>
         </div>
       ))}
 
