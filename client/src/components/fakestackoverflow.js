@@ -15,6 +15,7 @@ export default function FakeStackOverFlow() {
   const [data, setData] = useState([]);
   const [dataNotChanging, setDataNotChanging] = useState([]);
   const [userId, setUserId] = useState("");
+  const [showPopup, setShowPopup] = useState(true);
 
   useEffect(() => {
     axios.get('http://localhost:8000/get/questions')
@@ -191,14 +192,14 @@ export default function FakeStackOverFlow() {
 
   return (
     <>
-      <HeaderBar search={handleInputChange} searchValue={search} handleSort={handleSort} />
+      <HeaderBar search={handleInputChange} searchValue={search} handleSort={handleSort} setShowPopup={setShowPopup} />
       <div className="flex h-screen">
         <SideBar handlePageChange={handlePageChange} />
         <div id="complete-main" className="basis-5/6 mt-4">
           <SubHeader currentPage={sortAndPage} currentQuestion={currentQuestion} handlePageChange={handlePageChange} numQuestions={numQuestions} />
           <Main data={data} searchValue={search} sortAndPage={sortAndPage} onQuestionClick={handleQuestionClick} currentQuestion={currentQuestion} postQuestion={handleDataUpdate}
                 backToQuestions={backToQuestions} handlePageChange={handlePageChange} postAnswer={handleDataUpdate} handleInputChange={handleInputChange} backToQuestionsFromTags={backToQuestionsFromTags} 
-                currQuestionId={currQuestionId} userId = {userId}/>
+                currQuestionId={currQuestionId} userId = {userId} setShowPopup= {setShowPopup} showPopup = {showPopup}/>
         </div>
       </div>
     </>

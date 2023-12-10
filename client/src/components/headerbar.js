@@ -5,7 +5,7 @@ export default function HeaderBar(props) {
     axios.post('http://localhost:8000/logout',{},{
       withCredentials: true
     }).then(res => {
-      console.log(res);
+      props.setShowPopup(true);
     }).catch(err => {
       console.log(err.response.data);
     })

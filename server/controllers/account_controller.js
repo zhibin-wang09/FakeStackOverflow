@@ -23,7 +23,7 @@ const signup = async (req, res) => {
     }
     const salt = await bcrypt.genSalt(saltRound); // generate the hashing key
     const hashpass = await bcrypt.hash(password, salt); // hash the password
-    await user.create({username: username, password: hashpass, email: email,reputation: 50}); // store in database
+    await user.create({username: username, password: hashpass, email: email,}); // store in database
     res.status(200).send("Account created successfully"); 
 }
 
@@ -191,4 +191,12 @@ const deleteUsers = async (req,res) => {
     return res.status(200).send(u);
 }
 
-module.exports = {signup, login, logout, verify, increaseReputation, decreaseReputation,getUser, getSession,getCurrentUserInfo,getAllUser,deleteUsers}
+const isLoggedin = (req,res) => {
+    if(req.session.email){
+        res.status(200).send();
+    }else{
+        res.status(401).send();
+    }
+}
+
+module.exports = {signup, login, logout, verify, increaseReputation, decreaseReputation,getUser, getSession,getCurrentUserInfo,getAllUser,deleteUsers,isLoggedin}

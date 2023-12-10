@@ -39,6 +39,9 @@ export default function DisplayContainer(props) {
                     askDate={d.ask_date_time}
                     onQuestionClick={onQuestionClick}
                     tagIds={Object.keys(d.tags).map(t => [d.tags[t]._id, d.tags[t].name])}
+                    summary={d.summary}
+                    votes = {d.votes}
+                    numAnswers = {d.answers.length}
                 />
             ));
             break;

@@ -15,6 +15,9 @@ const postQuestion = async (req, res) => { // a post method to handle new questi
     for(const t in req.body.tags){
         const tagInDataBase = await tag.find({name: req.body.tags[t]}); // check if the tag already exist
         if(tagInDataBase.length == 0){
+            if(u.reputation < 50){
+                return res.status(400).send(`Your reputation is less than 50. You can not create new tag(s) (${req.body.tags[t]}). Please reuse existing tags.`);
+            }
             const newTag = await tag.create({name : req.body.tags[t], users: [u]});
             tags.push(newTag);
         }else{
@@ -26,7 +29,7 @@ const postQuestion = async (req, res) => { // a post method to handle new questi
             await tag.updateOne({name: req.body.tags[t]}, {users: [...tagInDataBase[0].users, u]}); // add a new creator of tag
         }
     }
-    const q = await question.create({title : req.body.title, text : req.body.text, tags : tags, asked_by : u});
+    const q = await question.create({title : req.body.title, text : req.body.text, tags : tags, asked_by : u, summary : req.body.summary});
     res.status(200).send(q);
 }
 
@@ -140,7 +143,11 @@ const getQuestionById = async (req,res) => {
             model: 'User'
         },{
             path: 'comment',
-            model: 'Comment'
+            model: 'Comment',
+            populate:{
+                path: 'posted_by',
+                model: 'User'
+            }
         }]
     }).populate('tags').populate({
         path: 'comment',
@@ -159,6 +166,9 @@ const getQuestionById = async (req,res) => {
     for(const i in q.answers){
         q.answers[i].ans_by.password = null; // erase password
         q.answers[i].ans_by.email = null; // erase the user email
+        for(const j in q.answers['comment']){
+            q.answers[i]['comment'][j].posted_by.password = null;
+        }
     }
     res.status(200).send(q);
 }

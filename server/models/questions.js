@@ -13,7 +13,8 @@ var questionSchema = new Schema({ // create collection
     ask_date_time: {type:Date, default: Date.now},
     views: {type: Number, default: 0},
     votes: {type: Number, default: 0},
-    comment: [{type: Schema.Types.ObjectId, ref : 'Comment'}]
+    comment: [{type: Schema.Types.ObjectId, ref : 'Comment'}],
+    summary: {type:String, required:true}
 }, {
     virtuals:{
         url:{
