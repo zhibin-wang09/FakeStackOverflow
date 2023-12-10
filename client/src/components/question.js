@@ -8,8 +8,11 @@ export default function Question(props) {
         </span>
     );
 
+    // Temporary placeholder summary
+    const temporarySummary = "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed vestibulum accumsan ex, at sodales arcu bibendum a.";
+
     return (
-        <div className="bg-white rounded-lg p-4 shadow-md mb-4" onClick={() => props.onQuestionClick(props.qid)}>
+        <div className="bg-white rounded-lg p-4 shadow-md mb-4 cursor-pointer" onClick={() => props.onQuestionClick(props.qid)}>
             <div className="flex justify-between items-center">
                 <div className="text-gray-600">
                     views: {props.views}
@@ -28,6 +31,9 @@ export default function Question(props) {
                 <span>
                     • {formatTimeSince(props.askDate)}
                 </span>
+            </div>
+            <div className="bg-gray-100 p-4 rounded-md mt-4">
+                <p className="text-sm">{props.summary || temporarySummary}</p>
             </div>
         </div>
     );

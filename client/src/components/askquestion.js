@@ -7,6 +7,7 @@ import extractLinks from '../processInput';
 export default function AskQuestion(props) {
     const [title, setTitle] = useState("");
     const [questionText, setQuestionText] = useState("");
+    const [questionSummary, setQuestionSummary] = useState("");
     const [tags, setTags] = useState("");
     const [submitted, setSubmitted] = useState(false);
     const [isTitleMoreThan100Char, setIsTitleMoreThan100char] = useState(false);
@@ -22,6 +23,7 @@ export default function AskQuestion(props) {
         let tagsarr = tags.toLowerCase().trim().split(" ");
         let titlet = title.trim();
         let text = questionText.trim();
+        let summary = questionSummary.trim();
         setErrorMsg('');
 
         // Validation checks
@@ -44,6 +46,7 @@ export default function AskQuestion(props) {
                 title: titlet,
                 text: text,
                 tags: tagsarr,
+                summary: summary
             },{
                 withCredentials: true
             })
@@ -51,6 +54,7 @@ export default function AskQuestion(props) {
                 // Handle successful post
                 setTitle("");
                 setQuestionText("");
+                setQuestionSummary("");
                 setTags("");
                 props.backToQuestions(); // Adjust as needed
             })
@@ -81,6 +85,16 @@ export default function AskQuestion(props) {
                     errorMessage={questionText ? (isInvalidHyperlink ? "Hyperlink must be in format [](https://) or [](http://)" : "") : "This field is required"}
                     id="question-text"
                     placeholder="Write a description..."
+                    submitted={submitted}
+                />
+
+                <TextArea 
+                    label="Question Summary* (be specific!)"
+                    value={questionSummary}
+                    setValue={setQuestionSummary}
+                    errorMessage={questionSummary ? (isInvalidHyperlink ? "Hyperlink must be in format [](https://) or [](http://)" : "") : "This field is required"}
+                    id="question-summary"
+                    placeholder="Write a summary..."
                     submitted={submitted}
                 />
                     
