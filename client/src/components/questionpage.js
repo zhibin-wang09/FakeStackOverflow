@@ -50,14 +50,16 @@ export default function QuestionPage({ handlePageChange, currQuestionId, userId}
             }
           })
           answers.sort(sortByTimeAnswer());
+          let answers2 = [];
           res.data.answers.forEach(u => {
             if(u.ans_by._id.toString() !== userId){
-              answers.push(u);
+              answers2.push(u);
             }
           })
-          setAnswers(answers);
+          answers2.sort(sortByTimeAnswer());
+          setAnswers(answers.concat(answers2));
         }else{
-          setAnswers(res.data.answers)
+          setAnswers(res.data.answers.sort(sortByTimeAnswer()))
         }
         setAskedBy(res.data.asked_by.username);
       } catch (error) {
