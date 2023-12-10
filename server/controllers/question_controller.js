@@ -143,7 +143,11 @@ const getQuestionById = async (req,res) => {
             model: 'User'
         },{
             path: 'comment',
-            model: 'Comment'
+            model: 'Comment',
+            populate:{
+                path: 'posted_by',
+                model: 'User'
+            }
         }]
     }).populate('tags').populate({
         path: 'comment',
@@ -162,6 +166,9 @@ const getQuestionById = async (req,res) => {
     for(const i in q.answers){
         q.answers[i].ans_by.password = null; // erase password
         q.answers[i].ans_by.email = null; // erase the user email
+        for(const j in q.answers['comment']){
+            q.answers[i]['comment'][j].posted_by.password = null;
+        }
     }
     res.status(200).send(q);
 }

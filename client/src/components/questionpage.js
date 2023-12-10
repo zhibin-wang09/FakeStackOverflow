@@ -108,6 +108,7 @@ export default function QuestionPage({ handlePageChange, currQuestionId, userId}
                 Upvote
               </button>
               <strong className="text-gray-500">Votes: {comment.votes} -</strong>  
+              <strong className="text-gray-500">Commented by: {comment.posted_by.username}</strong>
               <div> {comment.text} </div>
             </div>
           </div>
