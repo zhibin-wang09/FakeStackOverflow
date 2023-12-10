@@ -8,14 +8,17 @@ export default function Question(props) {
         </span>
     );
 
-    // Temporary placeholder summary
-    const temporarySummary = "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed vestibulum accumsan ex, at sodales arcu bibendum a.";
-
     return (
         <div className="bg-white rounded-lg p-4 shadow-md mb-4 cursor-pointer" onClick={() => props.onQuestionClick(props.qid)}>
             <div className="flex justify-between items-center">
                 <div className="text-gray-600">
                     views: {props.views}
+                </div>
+                <div className="text-gray-600">
+                    votes: {props.votes}
+                </div>
+                <div className="text-gray-600">
+                    number of answers: {props.numAnswers}
                 </div>
             </div>
             <p className="text-lg font-bold hover:text-blue-500">
@@ -33,7 +36,7 @@ export default function Question(props) {
                 </span>
             </div>
             <div className="bg-gray-100 p-4 rounded-md mt-4">
-                <p className="text-sm">{props.summary || temporarySummary}</p>
+                <p className="text-sm">{props.summary}</p>
             </div>
         </div>
     );

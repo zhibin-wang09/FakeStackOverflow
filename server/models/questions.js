@@ -14,7 +14,7 @@ var questionSchema = new Schema({ // create collection
     views: {type: Number, default: 0},
     votes: {type: Number, default: 0},
     comment: [{type: Schema.Types.ObjectId, ref : 'Comment'}],
-    questionSummary: {type:String, required:true}
+    summary: {type:String, required:true}
 }, {
     virtuals:{
         url:{
