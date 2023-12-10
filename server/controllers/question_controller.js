@@ -167,13 +167,13 @@ const getQuestionById = async (req,res) => {
 const increaseQuestionVote = async (req,res) => {
     const id = req.params.id; // use the id to identify the question
     let q = await question.findOne({_id: id}); // find the question and its associated information
-    u = await user.find({_id : q.asked_by});
+    u = await user.find({email: req.body.email});
     if(u[0].reputation < 50){
         res.status(400).send("You can not vote yet. Reputation is less than 50. Please get more votes from other people.")
         return;
     }
     await question.updateOne({_id: id}, {votes : q.votes + 1}); // increase the reputation by 1
-    q = await question.findOne({_id: id}); // find the question and its associated information
+    q = await question.findOne({_id: id}).populate('comment'); // find the question and its associated information
     res.status(200).send(q)
 }
 
@@ -181,13 +181,13 @@ const increaseQuestionVote = async (req,res) => {
 const decreaseQuestionVote = async (req,res) => {
     const id = req.params.id;
     let q = await question.findOne({_id: id});
-    u = await user.find({_id : q.asked_by});
+    u = await user.find({email: req.body.email});
     if(u[0].reputation < 50){
         res.status(400).send("You can not vote yet. Reputation is less than 50. Please get more votes from other people.")
         return;
     }
     await question.updateOne({_id: id}, {votes: q.votes -1});
-    q = await question.findOne({_id: id}); // find the question and its associated information
+    q = await question.findOne({_id: id}).populate('comment'); // find the question and its associated information
     res.status(200).send(q)
 }
 
