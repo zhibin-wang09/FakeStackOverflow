@@ -196,8 +196,7 @@ export default function ProfilePage(props) {
             </div>
           </div>
           <div>
-            <h3 className="text-lg font-bold mb-2">Users</h3>
-            <h5 className="text-lg font-bold mb-2">Total users: {users.length}</h5>
+            <h3 className="text-lg font-bold mb-2">{users.length === 0 ? "No Users" : "Users:"}</h3>
             <ul>
               {users.map(u => {
                   return (<li id ={u._id} key={u._id} className="mb-2">
@@ -236,7 +235,7 @@ export default function ProfilePage(props) {
         </div>
 
         <div>
-          <h3 className="text-lg font-bold mb-2">My Questions</h3>
+          <h3 className="text-lg font-bold mb-2">{questions.length === 0 ? "No Questions" : "My Questions"}</h3>
           <ul>
             {questions.map((question) => (
               <li id= {question._id} key={question._id} className="mb-2">
@@ -258,7 +257,7 @@ export default function ProfilePage(props) {
         </div>
 
         <div>
-          <h3 className="text-lg font-bold mb-2">My Tags</h3>
+          <h3 className="text-lg font-bold mb-2">{tags.length === 0 ? "No tags" : "My Tags:"}</h3>
           <ul>
             {tags.map((tag) => (
               <li key={tag._id} className="mb-2">
@@ -285,7 +284,7 @@ export default function ProfilePage(props) {
         </div>
 
         <div>
-          <h3 className="text-lg font-bold mb-2">Questions I've Answered</h3>
+          <h3 className="text-lg font-bold mb-2">{questionAnswered.length === 0 ? "No Question Answered" : "Questions I've Answered"}</h3>
           <ul>
             {questionAnswered.map((answeredQuestion) => (
               <li key={answeredQuestion._id} className="mb-2">
