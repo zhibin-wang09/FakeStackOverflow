@@ -5,6 +5,7 @@ const answer = require('../models/answers');
 const comment = require('../models/comment');
 const answers = require('../models/answers');
 const user = require('../models/account');
+const tags = require('../models/tags');
 require('../models/account');
 
 
@@ -132,7 +133,8 @@ const getQuestion = async (req,res) => {
             questions[i].answers[j].ans_by.email = null; // erase the user email
         }
     }
-    res.status(200).send(questions);
+    const t = await tags.find({});
+    res.status(200).send({questions,t});
 }
 
 const getQuestionById = async (req,res) => {

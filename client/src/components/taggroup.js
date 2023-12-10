@@ -9,7 +9,7 @@ export default function TagGroup(props) {
         // Fetch all questions from the server
         axios.get('http://localhost:8000/get/questions')
             .then(response => {
-                const allQuestions = response.data;
+                const allQuestions = response.data.questions;
                 const tagMap = new Map();
                 // Iterate through each question and categorize them based on their tags
                 allQuestions.forEach(question => { // build the hashmap from the questions returned. Each question associated with some tags. Assign the tags -> [questions]
@@ -20,6 +20,11 @@ export default function TagGroup(props) {
                         tagMap.get(JSON.stringify(question.tags[i])).push(question);
                     }                 
                 });
+                response.data.t.forEach(t => {
+                    if(!tagMap.has(JSON.stringify(t))){ // use JSON.stringify to keep the hashmap stable
+                        tagMap.set(JSON.stringify(t), []);
+                    }
+                })
                 let tagsArr = Array.from(tagMap.keys()); // convert map keys to array
                 tagsArr = tagsArr.map(a => JSON.parse(a)); // reverse JSON.stringify with JSON.parse to get the object
 

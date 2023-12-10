@@ -20,7 +20,8 @@ export default function FakeStackOverFlow() {
   useEffect(() => {
     axios.get('http://localhost:8000/get/questions')
       .then(response => {
-        const fetchedQuestions = response.data;
+        const fetchedQuestions = response.data.questions;
+        console.log(response.data)
         setData(fetchedQuestions.sort(sortByTime()));
         setDataNotChanging(fetchedQuestions.sort(sortByTime()));
         setNumQuestions(fetchedQuestions.length);
@@ -35,7 +36,7 @@ export default function FakeStackOverFlow() {
       setCurrentQuestion(null);
       axios.get('http://localhost:8000/get/questions')
       .then(response => {
-        const fetchedQuestions = response.data;
+        const fetchedQuestions = response.data.questions;
         setData(fetchedQuestions.sort(sortByTime()));
         setDataNotChanging(fetchedQuestions.sort(sortByTime()));
         setNumQuestions(fetchedQuestions.length);
