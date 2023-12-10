@@ -23,6 +23,7 @@ export default function QuestionPage({ handlePageChange, currQuestionId, userId}
   const [errorMsg, setErrorMsg] = useState("");
   const [errMsg, setErrMsg] = useState('');
   const [questionComment, setQuestionComment] = useState("");
+  const [page, setPage] = useState(0);
   const [answerComments, setAnswerComments] = useState({});
 
 
@@ -67,24 +68,64 @@ export default function QuestionPage({ handlePageChange, currQuestionId, userId}
   const displayAnswers = answers.slice(startIndex, startIndex + 5);
 
   const renderComments = (comments, targetId, isQuestion) => {
+    const commentsPerPage = 3;  
     if (!comments || comments.length === 0) {
       return <div>No comments available</div>; // Placeholder for no comments
     }
   
-    return comments.map((comment) => (
-      <div key={comment._id} className="ml-8 mt-2 text-gray-600">
-        <div className="flex items-center space-x-2">
-          <button className="text-blue-500 hover:text-blue-400" onClick={() => handleCommentUpvote(comment._id, targetId, isQuestion)}>
-            Upvote
+    const totalPages = Math.ceil(comments.length / commentsPerPage);
+    const start = page * commentsPerPage;
+    const end = start + commentsPerPage;
+  
+    const paginatedComments = comments.slice(start, end);
+  
+    const handleNextPage = () => {
+      setPage(page + 1);
+    };
+  
+    const handlePrevPage = () => {
+      setPage(page - 1);
+    };
+  
+    return (
+      <div>
+        {paginatedComments.map((comment) => (
+          <div key={comment._id} className="ml-8 mt-2 text-gray-600">
+            <div className="flex items-center space-x-2">
+              <button className="text-blue-500 hover:text-blue-400" onClick={() => handleCommentUpvote(comment._id, targetId, isQuestion)}>
+                Upvote
+              </button>
+              <button className="text-red-500 hover:text-red-400" onClick={() => handleCommentDownvote(comment._id, targetId, isQuestion)}>
+                Downvote
+              </button>
+              <strong className="text-gray-500">Votes: {comment.votes} -</strong>  
+              <div> {comment.text} </div>
+            </div>
+          </div>
+        ))}
+    
+        {/* Pagination buttons */}
+        <div className="flex justify-center">
+          <button
+            className="bg-blue-500 hover:bg-blue-400 text-white font-bold py-2 px-4 border-b-1 border-blue-700 hover:border-blue-500 rounded mx-2"
+            onClick={handlePrevPage}
+            disabled={page === 0}
+          >
+            Prev
           </button>
-          <button className="text-red-500 hover:text-red-400" onClick={() => handleCommentDownvote(comment._id, targetId, isQuestion)}>
-            Downvote
+          <button
+            className="bg-blue-500 hover:bg-blue-400 text-white font-bold py-2 px-4 border-b-1 border-blue-700 hover:border-blue-500 rounded mx-2"
+            onClick={handleNextPage}
+            disabled={page === totalPages - 1}
+          >
+            Next
           </button>
-          <strong className="text-gray-500">Votes: {comment.votes} - </strong> {comment.text}
         </div>
       </div>
-    ));
+    );    
   };
+  
+  
 
   const handleCommentUpvote = (commentId,targetId,isQuestion) => {
     axios.post(`http://localhost:8000/post/increaseCommentVote/${commentId}`,{
