@@ -13,6 +13,16 @@ function sortByTimeAnswer(){
   return sorttime
 }
 
+function sortByTimeComment(){
+  let sorttime = (a, b) => {
+    let currentTime = new Date();
+    let aDif = currentTime - new Date(a.date);
+    let bDif = currentTime - new Date(b.date);
+    return aDif - bDif;
+}
+return sorttime
+}
+
 
 export default function QuestionPage({ handlePageChange, currQuestionId, userId}) {
   const [answers, setAnswers] = useState([]);
@@ -72,7 +82,7 @@ export default function QuestionPage({ handlePageChange, currQuestionId, userId}
     if (!comments || comments.length === 0) {
       return <div>No comments available</div>; // Placeholder for no comments
     }
-  
+    comments = comments.sort(sortByTimeComment());
     const totalPages = Math.ceil(comments.length / commentsPerPage);
     const start = page * commentsPerPage;
     const end = start + commentsPerPage;
@@ -94,9 +104,6 @@ export default function QuestionPage({ handlePageChange, currQuestionId, userId}
             <div className="flex items-center space-x-2">
               <button className="text-blue-500 hover:text-blue-400" onClick={() => handleCommentUpvote(comment._id, targetId, isQuestion)}>
                 Upvote
-              </button>
-              <button className="text-red-500 hover:text-red-400" onClick={() => handleCommentDownvote(comment._id, targetId, isQuestion)}>
-                Downvote
               </button>
               <strong className="text-gray-500">Votes: {comment.votes} -</strong>  
               <div> {comment.text} </div>
@@ -146,33 +153,10 @@ export default function QuestionPage({ handlePageChange, currQuestionId, userId}
         }))
       }
     }).catch(err => {
-      console.log(err);
+      setErrMsg(err.response.data);
     })
   };
   
-
-  const handleCommentDownvote = (commentId,targetId,isQuestion) => {
-    axios.post(`http://localhost:8000/post/decreaseCommentVote/${commentId}`,{
-      id: targetId,
-      isQuestion: isQuestion
-    },{
-      withCredentials: true
-    }).then(res => {
-      if(isQuestion){
-        setQuestion(res.data);
-      }else{
-        setAnswers(answers.map(a => {
-          if(a._id === res.data._id){
-            return res.data;
-          }else{
-            return a;
-          }
-        }))
-      }
-    }).catch(err => {
-      console.log(err);
-    })
-  };
   
   const renderCommentForm = (targetId, isQuestion) => {
     // Function to handle adding comment based on targetId
@@ -313,7 +297,7 @@ export default function QuestionPage({ handlePageChange, currQuestionId, userId}
 
   return (
     <div>
-      <strong>{errMsg}</strong>
+      <strong className="text-rose-600">{errMsg}</strong>
       <div className="bg-gray-100 rounded-lg p-4 shadow-md mb-4 mx-8">
         <div className="flex justify-between items-center">
           <div className="flex items-center space-x-2">

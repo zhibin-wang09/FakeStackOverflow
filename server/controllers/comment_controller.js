@@ -61,7 +61,6 @@ const decreaseCommentVote = async (req,res) => {
         a.ans_by.email = null;
         res.status(200).send(a);
     }
-    res.status(200).send();
 }
 
 const deleteComment = async (req,res) => {
