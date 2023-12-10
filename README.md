@@ -6,8 +6,8 @@ Add design docs in *images/*
 - Enter server folder
   - Run `npm install`
   - Make sure that local mongodb database is running at `mongodb://127.0.0.1:27017/fake_so`
-  - Set up the database by running `nodemon init.js [admin username] [admin password]`
-  - Start server by running `nodemon server.js [secret]`
+  - Set up the database by running `node init.js [admin username] [admin password]`
+  - Start server by running `node server.js [secret]`
 - Enter client folder
   - Run `npm install`
   - Run `npm start`
