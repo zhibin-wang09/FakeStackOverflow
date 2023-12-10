@@ -29,7 +29,7 @@ const postQuestion = async (req, res) => { // a post method to handle new questi
             await tag.updateOne({name: req.body.tags[t]}, {users: [...tagInDataBase[0].users, u]}); // add a new creator of tag
         }
     }
-    const q = await question.create({title : req.body.title, text : req.body.text, tags : tags, asked_by : u});
+    const q = await question.create({title : req.body.title, text : req.body.text, tags : tags, asked_by : u, summary : req.body.summary});
     res.status(200).send(q);
 }
 

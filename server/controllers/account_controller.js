@@ -191,4 +191,12 @@ const deleteUsers = async (req,res) => {
     return res.status(200).send(u);
 }
 
-module.exports = {signup, login, logout, verify, increaseReputation, decreaseReputation,getUser, getSession,getCurrentUserInfo,getAllUser,deleteUsers}
+const isLoggedin = (req,res) => {
+    if(req.session.email){
+        res.status(200).send();
+    }else{
+        res.status(401).send();
+    }
+}
+
+module.exports = {signup, login, logout, verify, increaseReputation, decreaseReputation,getUser, getSession,getCurrentUserInfo,getAllUser,deleteUsers,isLoggedin}
