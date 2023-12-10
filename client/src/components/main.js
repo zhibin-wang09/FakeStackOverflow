@@ -3,7 +3,6 @@ import Popup from "./popup";
 import React from 'react';
 
 export default function Main(props) {
-console.log(props.showPopup);
   const handlePopupClose = (action) => {
     props.setShowPopup(false);
     if (action === 'signup') {
