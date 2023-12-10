@@ -191,7 +191,7 @@ export default function FakeStackOverFlow() {
 
   return (
     <>
-      <HeaderBar search={handleInputChange} searchValue={search} handleSort={handleSort} />
+      <HeaderBar search={handleInputChange} searchValue={search} handleSort={handleSort} handlePageChange = {handlePageChange} />
       <div className="flex h-screen">
         <SideBar handlePageChange={handlePageChange} />
         <div id="complete-main" className="basis-5/6 mt-4">
