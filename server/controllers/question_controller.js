@@ -15,6 +15,9 @@ const postQuestion = async (req, res) => { // a post method to handle new questi
     for(const t in req.body.tags){
         const tagInDataBase = await tag.find({name: req.body.tags[t]}); // check if the tag already exist
         if(tagInDataBase.length == 0){
+            if(u.reputation < 50){
+                return res.status(400).send(`Your reputation is less than 50. You can not create new tag(s) (${req.body.tags[t]}). Please reuse existing tags.`);
+            }
             const newTag = await tag.create({name : req.body.tags[t], users: [u]});
             tags.push(newTag);
         }else{

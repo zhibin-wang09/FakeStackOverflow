@@ -5,7 +5,7 @@ export default function HeaderBar(props) {
     axios.post('http://localhost:8000/logout',{},{
       withCredentials: true
     }).then(res => {
-      console.log(res);
+      props.handlePageChange({target : {id: 'question-page'}});
     }).catch(err => {
       console.log(err.response.data);
     })
