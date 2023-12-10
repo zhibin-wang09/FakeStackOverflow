@@ -4,7 +4,7 @@ const {postQuestion, getQuestionByKeyword ,getQuestion, updateView, getQuestionB
     deleteQuestion,modifyQuestion} = require('../controllers/question_controller'); // crud methods for questions
 const {getAnswers, postAnswers, increaseAnswerVote, decreaseAnswerVote, deleteAnswer,modifyAnswer, getAnswer} = require('../controllers/answer_controller'); // crud methods for answers
 const {getTag} = require('../controllers/tag_controller'); // crud method for tags
-const {signup, login, logout, verify, increaseReputation, decreaseReputation,getUser, getSession,getCurrentUserInfo,getAllUser,deleteUsers} = require('../controllers/account_controller'); // has all the authroization & authentication functions
+const {signup, login, logout, verify, increaseReputation, decreaseReputation,getUser, getSession,getCurrentUserInfo,getAllUser,deleteUsers,isLoggedin} = require('../controllers/account_controller'); // has all the authroization & authentication functions
 const {postCommentToQuestion,postCommentToAnswer, increaseCommentVote, decreaseCommentVote} = require('../controllers/comment_controller');
 const {deleteTag,getTagById,updateTagName} = require('../controllers/tag_controller');
 const router = express.Router();
@@ -44,5 +44,6 @@ router.route('/post/deleteUser/:id').post(verify, deleteUsers);
 router.route('/post/deleteTag/:id').post(verify,deleteTag);
 router.route('/get/tag/:id').get(getTagById);
 router.route('/put/tagname/:id').put(updateTagName)
+router.route('/isloggedin').get(isLoggedin);
 
 module.exports = router;
