@@ -1,12 +1,11 @@
 import DisplayContainer from "./displaycontainer";
 import Popup from "./popup";
-import React, { useState } from 'react';
+import React from 'react';
 
 export default function Main(props) {
-  const [showPopup, setShowPopup] = useState(true);
-
+console.log(props.showPopup);
   const handlePopupClose = (action) => {
-    setShowPopup(false);
+    props.setShowPopup(false);
     if (action === 'signup') {
       console.log('signup');
       // Go to signup page
@@ -19,7 +18,7 @@ export default function Main(props) {
   };
 
   const closePopup = (action) => {
-    setShowPopup(false);
+    props.setShowPopup(false);
     handlePopupClose(action); // Pass the action to handlePopupClose
   };
 
@@ -42,7 +41,7 @@ export default function Main(props) {
 
   return (
     <>
-      {showPopup && <Popup closePopup={closePopup} />}
+      {props.showPopup && <Popup closePopup={closePopup} setShowPopup={props.setShowPopup} showPopup={props.showPopup}/>}
       {display}
     </>
   );
