@@ -2,7 +2,6 @@ import axios from 'axios';
 import React, { useEffect } from 'react';
 
 const Popup = ({ closePopup,setShowPopup,showPopup }) => {
-  //const [showPopup, setShowPopup] = useState(true);
 
   useEffect(() => {
     axios.get('http://localhost:8000/isloggedin',{
@@ -12,7 +11,7 @@ const Popup = ({ closePopup,setShowPopup,showPopup }) => {
     }).catch(err => {
       setShowPopup(true);
     })
-  }, [])
+  }, [setShowPopup])
 
   const handlePopupClose = (action) => {
     setShowPopup(false);
