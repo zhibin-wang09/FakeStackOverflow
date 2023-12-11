@@ -1,4 +1,6 @@
 [![Review Assignment Due Date](https://classroom.github.com/assets/deadline-readme-button-24ddc0f5d75046c5622901739e7c5dd533143b0c8e959d652212380cedb1ea36.svg)](https://classroom.github.com/a/9NDadFFr)
+![UML For Data Models](/images/CSE%20316%20client.png?raw=true)
+
 ![UML For Data Models](/images/CSE%20316%20UML.png?raw=true)
 ![UML For Server](/images/Server%20UML.png?raw=true)
 
