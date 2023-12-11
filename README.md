@@ -1,5 +1,5 @@
 [![Review Assignment Due Date](https://classroom.github.com/assets/deadline-readme-button-24ddc0f5d75046c5622901739e7c5dd533143b0c8e959d652212380cedb1ea36.svg)](https://classroom.github.com/a/9NDadFFr)
-![UML For Data Models](/images/CSE%20316%20UML.pdf)
+![UML For Data Models](/images/CSE%20316%20UML.pdf?raw=true)
 
 ## Instructions to setup and run project
 - Be in the same directory as the root of the project
