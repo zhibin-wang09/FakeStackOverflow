@@ -15,6 +15,8 @@
   - Run `npm install`
   - Run `npm start`
 
+- Note: Admin email: `admin@gmail.com`
+
 ## Team Member 1 Contribution
 - Front end
 
